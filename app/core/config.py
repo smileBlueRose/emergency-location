@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
-SECRETS_DIR = PROJECT_DIR / 'secrets'
-ENV_DIR = PROJECT_DIR / 'env'
+SECRETS_DIR = PROJECT_DIR / "secrets"
+ENV_DIR = PROJECT_DIR / "env"
 
 
 class RunConfig(BaseModel):
@@ -34,7 +34,6 @@ class DatabaseConfig(BaseModel):
             host=self.host,
             port=self.port,
             path=self.name,
-
         )
 
     def get_password(self) -> str:
@@ -43,9 +42,9 @@ class DatabaseConfig(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(ENV_DIR / '.env.template', ENV_DIR / '.env'),
+        env_file=(ENV_DIR / ".env.template", ENV_DIR / ".env"),
         case_sensitive=False,
-        env_nested_delimiter='__',
+        env_nested_delimiter="__",
     )
     run: RunConfig
     db: DatabaseConfig
