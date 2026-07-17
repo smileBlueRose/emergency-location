@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from api import router as api_router
 from core.config import settings
 from fastapi import FastAPI
-from infra.db import db_helper
+from db import db_helper
 import uvicorn
 
 
