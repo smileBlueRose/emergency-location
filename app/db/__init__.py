@@ -4,3 +4,4 @@ __all__ = (
 )
 from .base import Base
 from .helper import db_helper
+from models import *  # noqa
