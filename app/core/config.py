@@ -40,6 +40,10 @@ class DatabaseConfig(BaseModel):
         return Path(PROJECT_DIR / self.password_file).read_text()
 
 
+class PhoneConfig:
+    default_region: str = "KZ"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(ENV_DIR / ".env.template", ENV_DIR / ".env"),
@@ -48,6 +52,7 @@ class Settings(BaseSettings):
     )
     run: RunConfig
     db: DatabaseConfig
+    phone: PhoneConfig
 
 
 settings = Settings()  # type: ignore

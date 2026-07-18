@@ -1,0 +1,2 @@
+class InvalidPhoneFormatError(Exception):
+    pass
