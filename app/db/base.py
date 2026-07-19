@@ -1,4 +1,6 @@
-from sqlalchemy import MetaData
+from typing import Any
+
+from sqlalchemy import MetaData, inspect
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -14,3 +16,6 @@ class Base(DeclarativeBase):
             "pk": "pk_%(table_name)s",
         }
     )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
