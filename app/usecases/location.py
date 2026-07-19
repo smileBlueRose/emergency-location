@@ -56,9 +56,8 @@ class GetLocationShareRecordsUseCase:
 
     async def execute(
         self, request_id: int, include_all: bool
-    ) -> LocationShareRecord | list[LocationShareRecord]:
+    ) -> list[LocationShareRecord]:
         if include_all:
             return await self._repo.get_all_by_request_id(request_id=request_id)
 
-        result = await self._repo.get_all_by_request_id(request_id=request_id, limit=1)
-        return result[0]
+        return await self._repo.get_all_by_request_id(request_id=request_id, limit=1)
