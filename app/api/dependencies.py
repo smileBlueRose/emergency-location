@@ -8,6 +8,7 @@ from repositories.location import (
 from usecases.location import (
     CreateLocationShareRequestUseCase,
     SubmitLocationShareRecordUseCase,
+    GetLocationShareRecordsUseCase,
 )
 
 
@@ -26,3 +27,10 @@ def get_submit_location_share_record_usecase(
     return SubmitLocationShareRecordUseCase(
         request_repo=request_repo, record_repo=record_repo
     )
+
+
+def get_get_location_share_record_use_case(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> GetLocationShareRecordsUseCase:
+    repo = LocationShareRecordRepository(session)
+    return GetLocationShareRecordsUseCase(repo)

@@ -3,11 +3,17 @@ from fastapi import APIRouter, Depends
 from api.dependencies import (
     get_create_location_share_request_usecase,
     get_submit_location_share_record_usecase,
+    get_get_location_share_record_use_case,
 )
-from schemas.location import LocationShareRequestSchema, LocationShareRecordSchema
+from schemas.location import (
+    LocationShareRequestSchema,
+    LocationShareRecordSchema,
+    LocationShareRecordListSchema,
+)
 from usecases.location import (
     CreateLocationShareRequestUseCase,
     SubmitLocationShareRecordUseCase,
+    GetLocationShareRecordsUseCase,
 )
 from fastapi import Body
 
@@ -44,3 +50,19 @@ async def submit_location_record(
     result = await usecase.execute(request_id, latitude, longitude)
 
     return result
+
+
+@router.get(
+    "/location-shares/{request_id}/records",
+    response_model=LocationShareRecordListSchema,
+    status_code=201,
+)
+async def get_location_records(
+    request_id: int,
+    include_all: bool = False,
+    usecase: GetLocationShareRecordsUseCase = Depends(
+        get_get_location_share_record_use_case
+    ),
+):
+    result = await usecase.execute(request_id, include_all)
+    return LocationShareRecordListSchema(items=result)
