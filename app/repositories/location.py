@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class LocationShareRequestRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: "AsyncSession"):
         self.session = session
 
     async def create(self, instance: LocationShareRequest) -> LocationShareRequest:
@@ -24,7 +24,7 @@ class LocationShareRequestRepository:
 
 
 class LocationShareRecordRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: "AsyncSession"):
         self.session = session
 
     async def create(self, instance: LocationShareRecord) -> LocationShareRecord:

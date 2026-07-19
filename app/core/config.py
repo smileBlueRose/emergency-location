@@ -56,8 +56,8 @@ class Settings(BaseSettings):
     )
     run: RunConfig
     db: DatabaseConfig
-    phone: PhoneConfig
-    location: Location
+    phone: PhoneConfig = PhoneConfig()
+    location: Location = Location()
 
 
 settings = Settings()  # type: ignore
