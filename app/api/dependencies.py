@@ -1,12 +1,28 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.helper import db_helper
-from repositories.location import LocationShareRequestRepository
-from usecases.location import CreateLocationShareRequestUseCase
+from repositories.location import (
+    LocationShareRequestRepository,
+    LocationShareRecordRepository,
+)
+from usecases.location import (
+    CreateLocationShareRequestUseCase,
+    SubmitLocationShareRecordUseCase,
+)
 
 
 def get_create_location_share_request_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> CreateLocationShareRequestUseCase:
-    repo = LocationShareRequestRepository(session=session)
+    repo = LocationShareRequestRepository(session)
     return CreateLocationShareRequestUseCase(repository=repo)
+
+
+def get_submit_location_share_record_usecase(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> SubmitLocationShareRecordUseCase:
+    request_repo = LocationShareRequestRepository(session)
+    record_repo = LocationShareRecordRepository(session)
+    return SubmitLocationShareRecordUseCase(
+        request_repo=request_repo, record_repo=record_repo
+    )
