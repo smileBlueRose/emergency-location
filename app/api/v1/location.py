@@ -55,7 +55,7 @@ async def submit_location_record(
 @router.get(
     "/location-shares/{request_id}/records",
     response_model=LocationShareRecordListSchema,
-    status_code=201,
+    status_code=200,
 )
 async def get_location_records(
     request_id: int,
