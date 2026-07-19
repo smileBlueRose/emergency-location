@@ -4,6 +4,8 @@ from typing import AsyncGenerator
 from api import router as api_router
 from core.config import settings
 from fastapi import FastAPI
+
+from core.exception_handler import register_exception_handlers
 from db import db_helper
 import uvicorn
 
@@ -16,6 +18,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 main_app = FastAPI(lifespan=lifespan)
 main_app.include_router(api_router, prefix="/api")
+register_exception_handlers(main_app)
 
 if __name__ == "__main__":
     uvicorn.run(
