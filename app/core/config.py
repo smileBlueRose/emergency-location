@@ -44,6 +44,10 @@ class PhoneConfig:
     default_region: str = "KZ"
 
 
+class Location:
+    request_ttl: int = 60 * 30
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(ENV_DIR / ".env.template", ENV_DIR / ".env"),
@@ -53,6 +57,7 @@ class Settings(BaseSettings):
     run: RunConfig
     db: DatabaseConfig
     phone: PhoneConfig
+    location: Location
 
 
 settings = Settings()  # type: ignore
