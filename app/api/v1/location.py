@@ -65,4 +65,6 @@ async def get_location_records(
     ),
 ):
     result = await usecase.execute(request_id, include_all)
-    return LocationShareRecordListSchema(items=result)
+    return LocationShareRecordListSchema(
+        items=[LocationShareRecordSchema.model_validate(r) for r in result]
+    )
