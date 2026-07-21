@@ -40,12 +40,22 @@ class DatabaseConfig(BaseModel):
         return Path(PROJECT_DIR / self.password_file).read_text()
 
 
-class PhoneConfig:
+class PhoneConfig(BaseModel):
     default_region: str = "KZ"
 
 
-class Location:
+class LocationConfig(BaseModel):
     request_ttl: int = 60 * 30
+
+
+class SmsConfig(BaseModel):
+    sender: str
+
+    class SmsKzConfig(BaseModel):
+        login: str
+        password: str
+
+    kz: SmsKzConfig
 
 
 class Settings(BaseSettings):
@@ -57,7 +67,8 @@ class Settings(BaseSettings):
     run: RunConfig
     db: DatabaseConfig
     phone: PhoneConfig = PhoneConfig()
-    location: Location = Location()
+    location: LocationConfig = LocationConfig()
+    sms: SmsConfig
 
 
 settings = Settings()  # type: ignore
