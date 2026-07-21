@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.18.5",
     "asyncpg>=0.31.0",
     "fastapi>=0.139.2",
+    "httpx>=0.28.1",
     "phonenumbers>=9.0.34",
     "pydantic-settings>=2.14.2",
     "sqlalchemy[asyncio]>=2.0.51",
@@ -16,5 +17,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=2.3.0",
     "ruff>=0.15.22",
 ]
