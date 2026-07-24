@@ -18,6 +18,14 @@ class CreateLocationShareRequestUseCase:
         if not PhoneService.is_valid(phone):
             raise InvalidPhoneFormatError("Phone number is invalid.")
         phone_number = PhoneService.normalize(phone)
+        last_request_lst = await self._repo.get_all(
+            phone=phone_number, order_by="-expired_at", limit=1
+        )
+        if last_request_lst:
+            last_request = last_request_lst[0]
+            if last_request.expired_at > datetime.now(tz=UTC):
+                return last_request
+
         expired_at = datetime.now(tz=UTC) + timedelta(
             seconds=settings.location.request_ttl
         )
