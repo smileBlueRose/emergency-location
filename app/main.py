@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from core.log import configure_logger
 
 from core.exception_handler import register_exception_handlers
-from core.utils import get_trace_id
 from db import db_helper
 import uvicorn
 

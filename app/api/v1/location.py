@@ -17,7 +17,6 @@ from usecases.location import (
 )
 from fastapi import Body
 from loguru import logger
-from core.utils import get_trace_id
 
 router = APIRouter()
 
