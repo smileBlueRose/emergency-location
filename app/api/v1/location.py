@@ -16,6 +16,8 @@ from usecases.location import (
     GetLocationShareRecordsUseCase,
 )
 from fastapi import Body
+from loguru import logger
+from core.utils import get_trace_id
 
 router = APIRouter()
 
@@ -29,7 +31,11 @@ async def create_location_share_request(
         get_create_location_share_request_usecase
     ),
 ):
+    logger.info("Creating location share request: phone={}", phone)
+
     result = await usecase.execute(phone)
+
+    logger.info("Location share request created")
 
     return result
 
@@ -47,7 +53,16 @@ async def submit_location_record(
         get_submit_location_share_record_usecase
     ),
 ):
+    logger.info(
+        "Submitting location record: request_id={}, latitude={}, longitude={}",
+        request_id,
+        latitude,
+        longitude,
+    )
+
     result = await usecase.execute(request_id, latitude, longitude)
+
+    logger.info("Location record submitted")
 
     return result
 
@@ -64,7 +79,16 @@ async def get_location_records(
         get_get_location_share_record_use_case
     ),
 ):
+    logger.info(
+        "Getting location records: request_id={}, include_all={}",
+        request_id,
+        include_all,
+    )
+
     result = await usecase.execute(request_id, include_all)
+
+    logger.info("Location records retrieved")
+
     return LocationShareRecordListSchema(
         items=[LocationShareRecordSchema.model_validate(r) for r in result]
     )
