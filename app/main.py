@@ -4,9 +4,10 @@ from typing import AsyncGenerator
 from api import router as api_router
 from core.config import settings
 from fastapi import FastAPI
-from core.log import configure_logger, UVICORN_LOG_CONFIG
+from core.log import configure_logger
 
 from core.exception_handler import register_exception_handlers
+from core.utils import get_trace_id
 from db import db_helper
 import uvicorn
 
@@ -20,15 +21,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 main_app = FastAPI(lifespan=lifespan)
 main_app.include_router(api_router, prefix="/api")
 register_exception_handlers(main_app)
+configure_logger(main_app)
 
 if __name__ == "__main__":
-    configure_logger()
-
     uvicorn.run(
         "main:main_app",
         host=settings.run.host,
         port=settings.run.port,
-        # reload=settings.run.reload,
-        reload=False,
-        log_config=UVICORN_LOG_CONFIG,
+        reload=settings.run.reload,
+        log_config=None,
     )
