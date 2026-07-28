@@ -55,9 +55,8 @@ class SmsKzGateway(SmsGateway):
             },
         )
         result = SmsResult(
-            message_id=str(response.json().get("id", "N/A")),
-            status_code=response.status_code,
-            text=response.text,
+            message_id=str(response.json()["id"]),
+            status=str(response.json()["status"]),
         )
         return result
 
