@@ -55,7 +55,13 @@ class SmsConfig(BaseModel):
         login: str
         password: str
 
-    kz: SmsKzConfig
+    class TwilioConfig(BaseModel):
+        account_sid: str
+        auth_token: str
+        from_phone: str
+
+    kz: SmsKzConfig  # TODO: rename to smsc_kz
+    twilio: TwilioConfig
 
 
 class WhatsAppConfig(BaseModel):

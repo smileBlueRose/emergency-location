@@ -4,3 +4,7 @@ class InvalidPhoneFormatError(Exception):
 
 class NotFoundError(Exception):
     pass
+
+
+class SmsSendError(Exception):
+    pass
