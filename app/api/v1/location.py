@@ -17,6 +17,7 @@ from usecases.location import (
 )
 from fastapi import Body
 from loguru import logger
+from models.location import LocationShareRequest, LocationShareRecord
 
 router = APIRouter()
 
@@ -29,7 +30,7 @@ async def create_location_share_request(
     usecase: CreateLocationShareRequestUseCase = Depends(
         get_create_location_share_request_usecase
     ),
-):
+) -> LocationShareRequest:
     logger.info("Creating location share request: phone={}", phone)
 
     result = await usecase.execute(phone)
@@ -51,7 +52,7 @@ async def submit_location_record(
     usecase: SubmitLocationShareRecordUseCase = Depends(
         get_submit_location_share_record_usecase
     ),
-):
+) -> LocationShareRecord:
     logger.info(
         "Submitting location record: request_id={}, latitude={}, longitude={}",
         request_id,
@@ -77,7 +78,7 @@ async def get_location_records(
     usecase: GetLocationShareRecordsUseCase = Depends(
         get_get_location_share_record_use_case
     ),
-):
+) -> LocationShareRecordListSchema:
     logger.info(
         "Getting location records: request_id={}, include_all={}",
         request_id,

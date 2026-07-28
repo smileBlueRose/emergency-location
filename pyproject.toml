@@ -24,7 +24,12 @@ dev = [
 ]
 
 [tool.mypy]
-
+strict = true
+python_version = '3.13'
+exclude= [
+    'sms_test\.py',
+    'wa_test\.py'
+]
 [[tool.mypy.overrides]]
 module = "twilio.*"
 ignore_missing_imports = true

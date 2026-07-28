@@ -43,15 +43,17 @@ class WhatsAppGraphApiGateway(WhatsAppGateway):
         return WhatsAppSendResult(message_id=respone_data["messages"][0]["id"])
 
     @staticmethod
-    def _get_components(params: list[str] | dict[str, str]) -> list[dict]:
+    def _get_components(
+        params: list[str] | dict[str, str],
+    ) -> list[dict[str, str | list[dict[str, str]]]]:
         if isinstance(params, dict):
             parameters = [
                 {"type": "text", "parameter_name": key, "text": value}
                 for key, value in params.items()
             ]
+
         else:
             parameters = [{"type": "text", "text": value} for value in params]
-
         return [
             {
                 "type": "body",

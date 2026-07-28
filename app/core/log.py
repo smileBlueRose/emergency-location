@@ -1,6 +1,7 @@
 import sys
+from typing import Callable, Awaitable
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from loguru import logger
 
 from core.config import PROJECT_DIR
@@ -37,7 +38,9 @@ def configure_logger(app: FastAPI) -> None:
     )
 
     @app.middleware("http")
-    async def logging_middleware(request: Request, call_next):
+    async def logging_middleware(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         trace_id = get_trace_id()
 
         with logger.contextualize(trace_id=trace_id):
