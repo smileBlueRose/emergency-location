@@ -58,6 +58,15 @@ class SmsConfig(BaseModel):
     kz: SmsKzConfig
 
 
+class WhatsAppConfig(BaseModel):
+    class GraphApi(BaseModel):
+        url: str = "https://graph.facebook.com/v21.0"
+        phone_number_id: str
+        access_token: str
+
+    graph_api: GraphApi
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(ENV_DIR / ".env.template", ENV_DIR / ".env"),
@@ -69,6 +78,7 @@ class Settings(BaseSettings):
     phone: PhoneConfig = PhoneConfig()
     location: LocationConfig = LocationConfig()
     sms: SmsConfig
+    whatsapp: WhatsAppConfig
 
 
 settings = Settings()  # type: ignore
