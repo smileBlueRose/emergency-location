@@ -1,3 +1,5 @@
+from typing import Any
+
 from httpx import AsyncClient
 
 from core.interfaces import WhatsAppGateway
@@ -16,7 +18,7 @@ class WhatsAppGraphApiGateway(WhatsAppGateway):
         self._access_token = access_token
 
     async def send(self, phone: str, template: WhatsAppTemplate) -> WhatsAppSendResult:
-        payload = {
+        payload: dict[str, Any] = {
             "messaging_product": "whatsapp",
             "to": phone,
             "type": "template",
@@ -28,12 +30,6 @@ class WhatsAppGraphApiGateway(WhatsAppGateway):
         if template.params is not None:
             payload["template"]["components"] = self._get_components(template.params)
 
-        logger.debug(
-            "Sending template={} to phone={!r} with parameters={}",
-            template.name,
-            phone,
-            template.params,
-        )
         response = await self._client.post(
             f"/{self._phone_number_id}/messages",
             headers={"Authorization": f"Bearer {self._access_token}"},
