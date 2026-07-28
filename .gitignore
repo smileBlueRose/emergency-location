@@ -221,3 +221,8 @@ __marimo__/
 
 # Secrets
 secrets/
+
+# Temporary testing files
+wa_test.py
+test.py
+sms_tes.py

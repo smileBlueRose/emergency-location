@@ -10,6 +10,7 @@ from repositories.location import (
     LocationShareRecordRepository,
 )
 from services.sms import SmsService
+from services.whatsapp import WhatsAppService
 from usecases.location import (
     CreateLocationShareRequestUseCase,
     SubmitLocationShareRecordUseCase,
@@ -54,3 +55,7 @@ async def get_whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
         phone_number_id=settings.whatsapp.graph_api.phone_number_id,
         access_token=settings.whatsapp.graph_api.access_token,
     )
+
+
+async def get_whatsapp_service() -> WhatsAppService:
+    return WhatsAppService(gateway=await get_whatsapp_graph_api_gateway())
