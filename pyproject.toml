@@ -13,6 +13,7 @@ dependencies = [
     "phonenumbers>=9.0.34",
     "pydantic-settings>=2.14.2",
     "sqlalchemy[asyncio]>=2.0.51",
+    "twilio>=9.10.9",
     "uvicorn>=0.51.0",
 ]
 
@@ -21,3 +22,9 @@ dev = [
     "mypy>=2.3.0",
     "ruff>=0.15.22",
 ]
+
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = "twilio.*"
+ignore_missing_imports = true
