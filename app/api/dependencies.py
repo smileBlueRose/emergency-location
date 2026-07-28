@@ -4,16 +4,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.http import client_provider
 from db.helper import db_helper
 from gateway.sms import SmsKzGateway
+from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
 )
 from services.sms import SmsService
+from services.whatsapp import WhatsAppService
 from usecases.location import (
     CreateLocationShareRequestUseCase,
     SubmitLocationShareRecordUseCase,
     GetLocationShareRecordsUseCase,
 )
+from core.config import settings
 
 
 def get_create_location_share_request_usecase(
@@ -43,3 +46,16 @@ def get_get_location_share_record_use_case(
 async def get_sms_service() -> SmsService:
     client = await client_provider.get_client()
     return SmsService(gateway=SmsKzGateway(client))
+
+
+async def get_whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
+    client = await client_provider.get_client(base_url=settings.whatsapp.graph_api.url)
+    return WhatsAppGraphApiGateway(
+        client=client,
+        phone_number_id=settings.whatsapp.graph_api.phone_number_id,
+        access_token=settings.whatsapp.graph_api.access_token,
+    )
+
+
+async def get_whatsapp_service() -> WhatsAppService:
+    return WhatsAppService(gateway=await get_whatsapp_graph_api_gateway())

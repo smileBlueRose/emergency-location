@@ -7,3 +7,8 @@ class SmsStatus(StrEnum):
     DELIVERED = "delivered"
     FAILED = "failed"
     UNKNOWN = "unknown"
+
+
+class TemplateName(StrEnum):
+    HELLO_WORLD = "hello_world"
+    LOCATION_SHARE_REQUEST = "share_geolocation_request"
