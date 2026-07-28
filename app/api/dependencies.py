@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.http import client_provider
 from db.helper import db_helper
-from gateway.sms import SmsKzGateway
+from gateway.sms.smsc_kz import SmsKzGateway
 from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
