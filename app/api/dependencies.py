@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.http import client_provider
 from db.helper import db_helper
-from gateway.sms.smsc_kz import SmsKzGateway
+from gateway.sms.twilio import SmsTwilioGateway
 from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
@@ -17,6 +17,7 @@ from usecases.location import (
     GetLocationShareRecordsUseCase,
 )
 from core.config import settings
+from twilio.rest import Client as TwilioClient
 
 
 def get_create_location_share_request_usecase(
@@ -44,8 +45,13 @@ def get_get_location_share_record_use_case(
 
 
 async def get_sms_service() -> SmsService:
-    client = await client_provider.get_client()
-    return SmsService(gateway=SmsKzGateway(client))
+    return SmsService(
+        gateway=SmsTwilioGateway(
+            TwilioClient(
+                settings.sms.twilio.account_sid, settings.sms.twilio.auth_token
+            )
+        )
+    )
 
 
 async def get_whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
