@@ -31,12 +31,8 @@ async def create_location_share_request(
         get_create_location_share_request_usecase
     ),
 ) -> LocationShareRequest:
-    logger.info("Creating location share request: phone={}", phone)
-
+    logger.info("Creating location share request: phone={!r}", phone)
     result = await usecase.execute(phone)
-
-    logger.info("Location share request created")
-
     return result
 
 

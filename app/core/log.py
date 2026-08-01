@@ -58,4 +58,4 @@ def configure_logger(app: FastAPI) -> None:
 
             return response
 
-    logger.debug("Logger configured")
+    # logger.debug("Logger configured")

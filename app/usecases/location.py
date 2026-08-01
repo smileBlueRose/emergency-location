@@ -1,5 +1,4 @@
 from core.config import settings
-from core.exceptions import InvalidPhoneFormatError
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
@@ -8,30 +7,66 @@ from models.location import LocationShareRequest, LocationShareRecord
 from services.phone import PhoneService
 from datetime import datetime, UTC, timedelta
 from core.exceptions import NotFoundError
+from loguru import logger
+
+from services.sms import SmsService
 
 
 class CreateLocationShareRequestUseCase:
-    def __init__(self, repository: LocationShareRequestRepository):
+    def __init__(
+        self, repository: LocationShareRequestRepository, sms_service: SmsService
+    ):
         self._repo = repository
+        self._sms_service = sms_service
 
     async def execute(self, phone: str) -> LocationShareRequest:
-        if not PhoneService.is_valid(phone):
-            raise InvalidPhoneFormatError("Phone number is invalid.")
-        phone_number = PhoneService.normalize(phone)
-        last_request_lst = await self._repo.get_all(
-            phone=phone_number, order_by="-expired_at", limit=1
-        )
-        if last_request_lst:
-            last_request = last_request_lst[0]
-            if last_request.expired_at > datetime.now(tz=UTC):
-                return last_request
+        phone = PhoneService.normalize(phone)
+        last_request = await self._get_last_request(phone=phone)
 
+        if last_request is not None and last_request.expired_at > datetime.now(tz=UTC):
+            logger.info(
+                "Previous request wiht id={} is still active until {}",
+                last_request.id,
+                last_request.expired_at,
+            )
+            return last_request
+
+        share_request = await self._create_share_request(phone=phone)
+        share_url = self._get_share_request_url(share_request.id)
+        sms = await self._sms_service.send_location_share_request(
+            phone=phone, url=share_url
+        )
+        logger.info("Request sms sent: sms_id={}", sms.message_id)
+
+        return share_request
+
+    async def _create_share_request(self, phone: str) -> LocationShareRequest:
         expired_at = datetime.now(tz=UTC) + timedelta(
             seconds=settings.location.request_ttl
         )
-        share_request = LocationShareRequest(phone=phone_number, expired_at=expired_at)
+        share_request_instance = LocationShareRequest(
+            phone=phone, expired_at=expired_at
+        )
+        logger.debug("Location share request initialized")
+        share_request = await self._repo.create(share_request_instance)
+        logger.info("Share request created")
+        return share_request
 
-        return await self._repo.create(share_request)
+    async def _get_last_request(self, phone: str) -> None | LocationShareRequest:
+        last_request = None
+        last_request_lst = await self._repo.get_all(
+            phone=phone, order_by="-expired_at", limit=1
+        )
+        if last_request_lst:
+            last_request = last_request_lst[0]
+        logger.debug("last_request={}", last_request)
+        return last_request
+
+    @staticmethod
+    def _get_share_request_url(request_id: int) -> str:
+        url = f"{settings.run.host}:{settings.run.port}/api/v1/location/location-shares/{request_id}/records"
+        logger.debug("share_link={}", url)
+        return url
 
 
 class SubmitLocationShareRecordUseCase:
