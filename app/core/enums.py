@@ -2,11 +2,22 @@ from enum import StrEnum
 
 
 class SmsStatus(StrEnum):
-    PENDING = "pending"
+    QUEUED = "queued"
+    SENDING = "sending"
     SENT = "sent"
-    DELIVERED = "delivered"
     FAILED = "failed"
-    UNKNOWN = "unknown"
+    DELIVERED = "delivered"
+    UNDELIVERED = "undelivered"
+    RECEIVING = "receiving"
+    RECEIVED = "received"
+    ACCEPTED = "accepted"
+    SCHEDULED = "scheduled"
+    READ = "read"
+    PARTIALLY_DELIVERED = "partially_delivered"
+    CANCELED = "canceled"
+
+    PENDING = "pending"
+    UNKNOWN = "unkown"
 
 
 class TemplateName(StrEnum):
