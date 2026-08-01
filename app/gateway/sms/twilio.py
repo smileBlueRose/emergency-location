@@ -9,6 +9,7 @@ from typing import cast
 from core.exceptions import SmsSendError
 
 
+# TODO: Use asynchronous client
 class SmsTwilioGateway(SmsGateway):
     def __init__(self, client: TwilioClient):
         self._client = client
@@ -25,8 +26,16 @@ class SmsTwilioGateway(SmsGateway):
         logger.debug("Message created: id={}, status={}", message.sid, message.status)
         return SmsResult(
             message_id=cast(str, message.sid),
-            status=message.status,
+            status=SmsStatus(message.status),
         )
 
     async def get_status(self, msg_id: str, phone: str | None = None) -> SmsStatus:
-        raise NotImplementedError
+        logger.debug("Fetching message status: msg_id={}", msg_id)
+        try:
+            message = self._client.messages(msg_id).fetch()
+            logger.info("Message fetched: status={}", message.status)
+        except TwilioRestException as e:
+            logger.error(e)
+            raise SmsSendError(f"Unexpected error: {e}")
+
+        return SmsStatus(message.status)
