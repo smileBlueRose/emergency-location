@@ -20,11 +20,13 @@ from core.config import settings
 from twilio.rest import Client as TwilioClient
 
 
-def get_create_location_share_request_usecase(
+async def get_create_location_share_request_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> CreateLocationShareRequestUseCase:
     repo = LocationShareRequestRepository(session)
-    return CreateLocationShareRequestUseCase(repository=repo)
+    return CreateLocationShareRequestUseCase(
+        repository=repo, sms_service=await get_sms_service()
+    )
 
 
 def get_submit_location_share_record_usecase(

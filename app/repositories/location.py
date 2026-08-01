@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
+# TODO: Remove commit() from repositories and move it to usecases
 class LocationShareRequestRepository:
     def __init__(self, session: "AsyncSession"):
         self.session = session
