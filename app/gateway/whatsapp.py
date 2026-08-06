@@ -1,7 +1,8 @@
 from typing import Any
 
-from httpx import AsyncClient
+from httpx import AsyncClient, HTTPStatusError
 
+from core.exceptions import WhatsAppSendError
 from core.interfaces import WhatsAppGateway
 from schemas.whatsapp import WhatsAppTemplate, WhatsAppSendResult
 from loguru import logger
@@ -18,6 +19,9 @@ class WhatsAppGraphApiGateway(WhatsAppGateway):
         self._access_token = access_token
 
     async def send(self, phone: str, template: WhatsAppTemplate) -> WhatsAppSendResult:
+        """
+        :raises WhatsAppSendError:
+        """
         payload: dict[str, Any] = {
             "messaging_product": "whatsapp",
             "to": phone,
@@ -36,9 +40,12 @@ class WhatsAppGraphApiGateway(WhatsAppGateway):
             json=payload,
         )
         respone_data = response.json()
-        logger.debug("response={}", respone_data)
 
-        response.raise_for_status()
+        try:
+            response.raise_for_status()  # here
+        except HTTPStatusError as e:
+            logger.error(e)
+            raise WhatsAppSendError from e
 
         return WhatsAppSendResult(message_id=respone_data["messages"][0]["id"])
 
