@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class WhatsAppTemplateLanguageCode(StrEnum):
-    EN_US = "en_US"
+    EN = "en"
     RU = "ru"
     KK = "kk"
 

@@ -1,10 +1,10 @@
-class InvalidPhoneFormatError(Exception):
-    pass
+class InvalidPhoneFormatError(Exception): ...
 
 
-class NotFoundError(Exception):
-    pass
+class NotFoundError(Exception): ...
 
 
-class SmsSendError(Exception):
-    pass
+class SmsSendError(Exception): ...
+
+
+class WhatsAppSendError(Exception): ...

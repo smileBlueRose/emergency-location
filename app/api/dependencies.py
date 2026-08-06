@@ -1,3 +1,4 @@
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,15 +19,6 @@ from usecases.location import (
 )
 from core.config import settings
 from twilio.rest import Client as TwilioClient
-
-
-async def get_create_location_share_request_usecase(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> CreateLocationShareRequestUseCase:
-    repo = LocationShareRequestRepository(session)
-    return CreateLocationShareRequestUseCase(
-        repository=repo, sms_service=await get_sms_service()
-    )
 
 
 def get_submit_location_share_record_usecase(
@@ -67,3 +59,14 @@ async def get_whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
 
 async def get_whatsapp_service() -> WhatsAppService:
     return WhatsAppService(gateway=await get_whatsapp_graph_api_gateway())
+
+
+async def get_create_location_share_request_usecase(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> CreateLocationShareRequestUseCase:
+    repo = LocationShareRequestRepository(session)
+    return CreateLocationShareRequestUseCase(
+        repository=repo,
+        sms_service=await get_sms_service(),
+        wa_service=await get_whatsapp_service(),
+    )

@@ -10,14 +10,19 @@ from core.exceptions import NotFoundError
 from loguru import logger
 
 from services.sms import SmsService
+from services.whatsapp import WhatsAppService
 
 
 class CreateLocationShareRequestUseCase:
     def __init__(
-        self, repository: LocationShareRequestRepository, sms_service: SmsService
+        self,
+        repository: LocationShareRequestRepository,
+        sms_service: SmsService,
+        wa_service: WhatsAppService,
     ):
         self._repo = repository
         self._sms_service = sms_service
+        self._wa_service = wa_service
 
     async def execute(self, phone: str) -> LocationShareRequest:
         phone = PhoneService.normalize(phone)
@@ -33,10 +38,16 @@ class CreateLocationShareRequestUseCase:
 
         share_request = await self._create_share_request(phone=phone)
         share_url = self._get_share_request_url(share_request.id)
+
         sms = await self._sms_service.send_location_share_request(
             phone=phone, url=share_url
         )
         logger.info("Request sms sent: sms_id={}", sms.message_id)
+
+        wa_msg = await self._wa_service.send_location_share_request(
+            phone=phone, link=share_url
+        )
+        logger.info("Request whatsapp message sent: msg_id={}", wa_msg.message_id)
 
         return share_request
 
@@ -64,6 +75,7 @@ class CreateLocationShareRequestUseCase:
 
     @staticmethod
     def _get_share_request_url(request_id: int) -> str:
+        # TODO: Move this url in settings.py
         url = f"{settings.run.host}:{settings.run.port}/api/v1/location/location-shares/{request_id}/records"
         logger.debug("share_link={}", url)
         return url
