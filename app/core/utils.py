@@ -1,4 +1,5 @@
 from secrets import token_hex
+from core.config import BASE_URL, settings
 
 
 def get_trace_id() -> str:
@@ -9,3 +10,7 @@ def get_trace_id() -> str:
     the collision probability is ~0.18%, and for small apps
     """
     return token_hex(6)
+
+
+def get_photo_share_url(filename: str) -> str:
+    return BASE_URL + settings.api_prefix.media + "/" + filename

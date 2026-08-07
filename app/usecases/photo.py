@@ -31,3 +31,16 @@ class UploadPhotoShareUseCase:
         logger.info("Created photo share: id={}", photo_share.id)
 
         return photo_share
+
+
+class GetPhotoShareUseCase:
+    def __init__(self, repo: PhotoShareRepository):
+        self._repo = repo
+
+    async def execute(self, request_id: int) -> list[PhotoShare]:
+        logger.info("Fetching photo shares: request_id={}", request_id)
+
+        photo_shares = await self._repo.get_all(request_id=request_id)
+        logger.debug("Fetched {} photos", len(photo_shares))
+
+        return photo_shares

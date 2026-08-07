@@ -16,6 +16,10 @@ class RunConfig(BaseModel):
     reload: bool = True
 
 
+class ApiPrefix(BaseModel):
+    media: str = "/media"
+
+
 class DatabaseConfig(BaseModel):
     user: str
     name: str
@@ -88,6 +92,7 @@ class Settings(BaseSettings):
     location: LocationConfig = LocationConfig()
     sms: SmsConfig
     whatsapp: WhatsAppConfig
+    api_prefix: ApiPrefix = ApiPrefix()
 
 
 settings = Settings()  # type: ignore

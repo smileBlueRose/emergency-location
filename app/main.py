@@ -19,7 +19,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 main_app = FastAPI(lifespan=lifespan)
-main_app.mount("/media", StaticFiles(directory=MEDIA_ROOT), name="media")
+main_app.mount(
+    settings.api_prefix.media, StaticFiles(directory=MEDIA_ROOT), name="media"
+)
 
 main_app.include_router(api_router, prefix="/api")
 register_exception_handlers(main_app)

@@ -19,7 +19,7 @@ class PhotoShareRepository:
         return instance
 
     async def get_all(
-        self, request_id: int, order_by: str | None, limit: int | None
+        self, request_id: int, order_by: str | None = None, limit: int | None = None
     ) -> list[PhotoShare]:
         query = select(PhotoShare).where(PhotoShare.request_id == request_id)
 
