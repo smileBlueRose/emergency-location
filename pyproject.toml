@@ -24,6 +24,7 @@ dev = [
 ]
 
 [tool.mypy]
+explicit_package_bases = true
 strict = true
 python_version = '3.13'
 exclude= [
