@@ -5,6 +5,7 @@ from api.dependencies import (
     get_submit_location_share_record_usecase,
     get_get_location_share_record_use_case,
 )
+from core.config import settings
 from schemas.location import (
     LocationShareRequestSchema,
     LocationShareRecordSchema,
@@ -19,10 +20,14 @@ from fastapi import Body
 from loguru import logger
 from models.location import LocationShareRequest, LocationShareRecord
 
-router = APIRouter(prefix="/location-shares")
+router = APIRouter(prefix=settings.api_prefix.location_shares)
 
 
-@router.post("", response_model=LocationShareRequestSchema, status_code=201)
+@router.post(
+    settings.api_path.create_location_share_request,
+    response_model=LocationShareRequestSchema,
+    status_code=201,
+)
 async def create_location_share_request(
     phone: str = Body(..., embed=True),
     usecase: CreateLocationShareRequestUseCase = Depends(
@@ -35,7 +40,7 @@ async def create_location_share_request(
 
 
 @router.post(
-    "/{request_id}/records",
+    settings.api_path.submit_location_record,
     response_model=LocationShareRecordSchema,
     status_code=201,
 )
@@ -62,7 +67,7 @@ async def submit_location_record(
 
 
 @router.get(
-    "/{request_id}/records",
+    settings.api_path.get_location_records,
     response_model=LocationShareRecordListSchema,
     status_code=200,
 )

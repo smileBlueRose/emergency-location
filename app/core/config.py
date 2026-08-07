@@ -18,6 +18,21 @@ class RunConfig(BaseModel):
 
 class ApiPrefix(BaseModel):
     media: str = "/media"
+    self: str = "/api"
+    version: str = "/v1"
+    location: str = "/location"
+    location_shares: str = "/location-shares"
+    photo: str = "/photo"
+    photo_shares: str = "/photo-shares"
+
+
+class ApiPath(BaseModel):
+    create_location_share_request: str = ""
+    submit_location_record: str = "/{request_id}/records"
+    get_location_records: str = "/{request_id}/records"
+
+    get_photo_shares: str = ""
+    upload_photo_shares: str = ""
 
 
 class DatabaseConfig(BaseModel):
@@ -93,6 +108,7 @@ class Settings(BaseSettings):
     sms: SmsConfig
     whatsapp: WhatsAppConfig
     api_prefix: ApiPrefix = ApiPrefix()
+    api_path: ApiPath = ApiPath()
 
 
 settings = Settings()  # type: ignore

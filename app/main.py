@@ -23,7 +23,7 @@ main_app.mount(
     settings.api_prefix.media, StaticFiles(directory=MEDIA_ROOT), name="media"
 )
 
-main_app.include_router(api_router, prefix="/api")
+main_app.include_router(api_router, prefix=settings.api_prefix.self)
 register_exception_handlers(main_app)
 configure_logger(main_app)
 

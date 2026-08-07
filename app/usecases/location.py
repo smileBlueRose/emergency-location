@@ -1,4 +1,5 @@
 from core.config import settings
+from core.utils import get_share_request_url
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
@@ -37,7 +38,7 @@ class CreateLocationShareRequestUseCase:
             return last_request
 
         share_request = await self._create_share_request(phone=phone)
-        share_url = self._get_share_request_url(share_request.id)
+        share_url = get_share_request_url(share_request.id)
 
         sms = await self._sms_service.send_location_share_request(
             phone=phone, url=share_url
@@ -72,13 +73,6 @@ class CreateLocationShareRequestUseCase:
             last_request = last_request_lst[0]
         logger.debug("last_request={}", last_request)
         return last_request
-
-    @staticmethod
-    def _get_share_request_url(request_id: int) -> str:
-        # TODO: Move this url in settings.py
-        url = f"{settings.run.host}:{settings.run.port}/api/v1/location/location-shares/{request_id}/records"
-        logger.debug("share_link={}", url)
-        return url
 
 
 class SubmitLocationShareRecordUseCase:
