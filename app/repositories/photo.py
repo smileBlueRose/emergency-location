@@ -7,11 +7,11 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class SharePhotoRepository:
+class PhotoShareRepository:
     def __init__(self, session: "AsyncSession"):
         self._session = session
 
-    async def upload(self, instance: PhotoShare) -> PhotoShare:
+    async def create(self, instance: PhotoShare) -> PhotoShare:
         self._session.add(instance)
         await self._session.commit()
         await self._session.refresh(instance)
@@ -19,7 +19,7 @@ class SharePhotoRepository:
         return instance
 
     async def get_all(
-        self, request_id: int, order_by: str | None, limit: int | None
+        self, request_id: int, order_by: str | None = None, limit: int | None = None
     ) -> list[PhotoShare]:
         query = select(PhotoShare).where(PhotoShare.request_id == request_id)
 

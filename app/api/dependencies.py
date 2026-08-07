@@ -10,7 +10,7 @@ from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
 )
-from repositories.photo import SharePhotoRepository
+from repositories.photo import PhotoShareRepository
 from services.sms import SmsService
 from services.whatsapp import WhatsAppService
 from usecases.location import (
@@ -20,7 +20,10 @@ from usecases.location import (
 )
 from core.config import settings
 from twilio.rest import Client as TwilioClient
-from usecases.photo import UploadPhotoShareUseCase
+from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
+
+
+# TODO: remove `get_` prefix from all dependency functions
 
 
 def get_submit_location_share_record_usecase(
@@ -78,5 +81,11 @@ async def get_photo_share_upload_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> UploadPhotoShareUseCase:
     return UploadPhotoShareUseCase(
-        repo=SharePhotoRepository(session), gateway=LocalFileStorageGateway()
+        repo=PhotoShareRepository(session), gateway=LocalFileStorageGateway()
     )
+
+
+async def get_get_photo_share_usecase(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> GetPhotoShareUseCase:
+    return GetPhotoShareUseCase(repo=PhotoShareRepository(session))
