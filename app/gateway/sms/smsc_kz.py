@@ -46,8 +46,8 @@ class SmsKzGateway(SmsGateway):
         response = await self._client.post(
             self.SEND_URL,
             json={
-                "login": settings.sms.kz.login,
-                "psw": settings.sms.kz.password,
+                "login": settings.sms.sms_kz.login,
+                "psw": settings.sms.sms_kz.password,
                 "sender": settings.sms.sender,
                 "phones": phone,
                 "mes": msg,
@@ -66,8 +66,8 @@ class SmsKzGateway(SmsGateway):
             data={
                 "id": msg_id,
                 "phone": phone or "",
-                "login": settings.sms.kz.login,
-                "psw": settings.sms.kz.password,
+                "login": settings.sms.sms_kz.login,
+                "psw": settings.sms.sms_kz.password,
                 "fmt": 3,
             },
         )

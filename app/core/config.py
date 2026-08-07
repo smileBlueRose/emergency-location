@@ -67,7 +67,7 @@ class SmsConfig(BaseModel):
         auth_token: str
         from_phone: str
 
-    kz: SmsKzConfig  # TODO: rename to smsc_kz
+    sms_kz: SmsKzConfig
     twilio: TwilioConfig
 
 
