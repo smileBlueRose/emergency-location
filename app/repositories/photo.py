@@ -7,11 +7,11 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class SharePhotoRepository:
+class PhotoShareRepository:
     def __init__(self, session: "AsyncSession"):
         self._session = session
 
-    async def upload(self, instance: PhotoShare) -> PhotoShare:
+    async def create(self, instance: PhotoShare) -> PhotoShare:
         self._session.add(instance)
         await self._session.commit()
         await self._session.refresh(instance)

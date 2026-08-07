@@ -10,7 +10,7 @@ from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
 )
-from repositories.photo import SharePhotoRepository
+from repositories.photo import PhotoShareRepository
 from services.sms import SmsService
 from services.whatsapp import WhatsAppService
 from usecases.location import (
@@ -78,5 +78,5 @@ async def get_photo_share_upload_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> UploadPhotoShareUseCase:
     return UploadPhotoShareUseCase(
-        repo=SharePhotoRepository(session), gateway=LocalFileStorageGateway()
+        repo=PhotoShareRepository(session), gateway=LocalFileStorageGateway()
     )

@@ -1,5 +1,5 @@
 from core.interfaces import FileStorageGateway
-from repositories.photo import SharePhotoRepository
+from repositories.photo import PhotoShareRepository
 from schemas.common import File
 from models.photo import PhotoShare
 from services.image import ImageService
@@ -7,7 +7,7 @@ from loguru import logger
 
 
 class UploadPhotoShareUseCase:
-    def __init__(self, repo: SharePhotoRepository, gateway: FileStorageGateway):
+    def __init__(self, repo: PhotoShareRepository, gateway: FileStorageGateway):
         self._repo = repo
         self._gateway = gateway
 
@@ -20,12 +20,12 @@ class UploadPhotoShareUseCase:
         content = ImageService.convert_to_jpeg(data=file.data)
         logger.debug("Image converted to jpeg")
 
-        filename = self._gateway.save_share_photo(
+        filename = self._gateway.save_photo_share(
             content, request_id=request_id, mimetype="image/jpeg"
         )
         logger.info("Photo saved to storage: file={}", filename)
 
-        photo_share = await self._repo.upload(
+        photo_share = await self._repo.create(
             PhotoShare(request_id=request_id, filename=filename)
         )
         logger.info("Created photo share: id={}", photo_share.id)

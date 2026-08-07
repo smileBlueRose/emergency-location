@@ -15,7 +15,7 @@ class LocalFileStorageGateway(FileStorageGateway):
         return result
 
     @staticmethod
-    def save_share_photo(content: bytes, request_id: int, mimetype: str) -> str:
+    def save_photo_share(content: bytes, request_id: int, mimetype: str) -> str:
         ext = LocalFileStorageGateway.mimetype_to_extension(mimetype)
         filename = f"{request_id}/{uuid.uuid4()}{ext}"
         logger.debug("filename={}", filename)
