@@ -14,3 +14,8 @@ class WhatsAppGateway(Protocol):
     async def send(
         self, phone: str, template: WhatsAppTemplate
     ) -> WhatsAppSendResult: ...
+
+
+class FileStorageGateway(Protocol):
+    @staticmethod
+    def save_share_photo(content: bytes, request_id: int, mimetype: str) -> str: ...
