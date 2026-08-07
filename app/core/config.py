@@ -6,6 +6,9 @@ PROJECT_DIR = Path(__file__).parent.parent.parent
 SECRETS_DIR = PROJECT_DIR / "secrets"
 ENV_DIR = PROJECT_DIR / "env"
 
+MEDIA_ROOT = Path(PROJECT_DIR / "media")
+MEDIA_ROOT.mkdir(exist_ok=True)
+
 
 class RunConfig(BaseModel):
     host: str

@@ -9,6 +9,6 @@ class ListResponseSchema[T](BaseModel):
 
 
 class File(BaseModel):
-    filename: str
-    content_type: str
+    filename: str | None
+    content_type: str | None
     data: bytes
