@@ -8,7 +8,9 @@ class PhotoShare(Base):
     __tablename__ = "photo_shares"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    request_id: Mapped[int] = mapped_column(ForeignKey("location_share_requests.id", ondelete="CASCADE"))
+    request_id: Mapped[int] = mapped_column(
+        ForeignKey("location_share_requests.id", ondelete="CASCADE")
+    )
 
     filename: Mapped[str] = mapped_column(String(length=255), unique=True)
     created_at: Mapped[datetime] = mapped_column(
