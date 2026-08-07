@@ -19,12 +19,10 @@ from fastapi import Body
 from loguru import logger
 from models.location import LocationShareRequest, LocationShareRecord
 
-router = APIRouter()
+router = APIRouter(prefix="/location-shares")
 
 
-@router.post(
-    "/location-shares", response_model=LocationShareRequestSchema, status_code=201
-)
+@router.post("", response_model=LocationShareRequestSchema, status_code=201)
 async def create_location_share_request(
     phone: str = Body(..., embed=True),
     usecase: CreateLocationShareRequestUseCase = Depends(
@@ -37,7 +35,7 @@ async def create_location_share_request(
 
 
 @router.post(
-    "/location-shares/{request_id}/records",
+    "/{request_id}/records",
     response_model=LocationShareRecordSchema,
     status_code=201,
 )
@@ -64,7 +62,7 @@ async def submit_location_record(
 
 
 @router.get(
-    "/location-shares/{request_id}/records",
+    "/{request_id}/records",
     response_model=LocationShareRecordListSchema,
     status_code=200,
 )
