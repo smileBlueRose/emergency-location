@@ -91,3 +91,5 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
+
+BASE_URL = f"http://{settings.run.host}:{settings.run.port}"
