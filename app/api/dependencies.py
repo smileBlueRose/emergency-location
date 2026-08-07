@@ -3,12 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.http import client_provider
 from db.helper import db_helper
+from gateway.file_storage import LocalFileStorageGateway
 from gateway.sms.twilio import SmsTwilioGateway
 from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
 )
+from repositories.photo import SharePhotoRepository
 from services.sms import SmsService
 from services.whatsapp import WhatsAppService
 from usecases.location import (
@@ -18,6 +20,7 @@ from usecases.location import (
 )
 from core.config import settings
 from twilio.rest import Client as TwilioClient
+from usecases.photo import UploadPhotoShareUseCase
 
 
 def get_submit_location_share_record_usecase(
@@ -68,4 +71,12 @@ async def get_create_location_share_request_usecase(
         repository=repo,
         sms_service=await get_sms_service(),
         wa_service=await get_whatsapp_service(),
+    )
+
+
+async def get_photo_share_upload_usecase(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> UploadPhotoShareUseCase:
+    return UploadPhotoShareUseCase(
+        repo=SharePhotoRepository(session), gateway=LocalFileStorageGateway()
     )
