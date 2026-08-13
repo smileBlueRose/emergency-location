@@ -13,7 +13,7 @@ class UploadPhotoShareUseCase:
 
     async def execute(self, file: File, request_id: int) -> PhotoShare:
         # TODO: check request is active
-        # TODO: Max allowed uploads — 10
+        # TODO: Max allowed uploads — 20
 
         logger.info(f"Uploading photo share for request_id={request_id}")
 

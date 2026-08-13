@@ -10,6 +10,7 @@ from core.exception_handler import register_exception_handlers
 from db import db_helper
 import uvicorn
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
 
 
 @asynccontextmanager
@@ -27,7 +28,9 @@ main_app.include_router(api_router, prefix=settings.api_prefix.self)
 register_exception_handlers(main_app)
 configure_logger(main_app)
 
-if __name__ == "__main__":
+
+def main() -> None:
+    logger.info("Run main")
     uvicorn.run(
         "main:main_app",
         host=settings.run.host,
@@ -35,3 +38,7 @@ if __name__ == "__main__":
         reload=settings.run.reload,
         log_config=None,
     )
+
+
+if __name__ == "__main__":
+    main()
