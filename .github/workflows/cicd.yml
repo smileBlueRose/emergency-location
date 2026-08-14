@@ -37,7 +37,7 @@ jobs:
           target: "/app"
           strip_components: 1
       -
-        name: Connect using SSH
+        name: Start up the backend and the database
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -47,4 +47,4 @@ jobs:
           port: 22
           script: |
             cd /app
-            ls -la
+            podman-compose --env-file=env/.env up -d
