@@ -36,6 +36,7 @@ def main() -> None:
         host=settings.run.host,
         port=settings.run.port,
         reload=settings.run.reload,
+        workers=settings.run.workers,
         log_config=None,
     )
 
