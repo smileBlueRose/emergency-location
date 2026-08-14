@@ -47,4 +47,6 @@ jobs:
           port: 22
           script: |
             cd /app
+            podman rm -rf ${{ vars.BACKEND_CNT_NAME }}
+            podman rmi ${{ vars.BACKEND_IMAGE }}
             podman-compose --env-file=env/.env up -d
