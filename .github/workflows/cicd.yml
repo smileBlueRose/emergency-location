@@ -6,10 +6,11 @@ jobs:
   first_job:
     runs-on: ubuntu-latest
     steps:
-      - name: Print Hello World
-        run: echo 'Hello World'
-      - name: Execute Multiline
-        run: |
-          pwd
-          ls -la
-          whoami
+      - name: Execute remote SSH commands using SSH key
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH }}
+          port: 22
+          script: whoami
