@@ -14,6 +14,7 @@ class RunConfig(BaseModel):
     host: str
     port: int
     reload: bool = True
+    workers: int = 4
 
 
 class ApiPrefix(BaseModel):
