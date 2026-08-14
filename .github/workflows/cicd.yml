@@ -1,6 +1,8 @@
-name: Hello World Pipeline
+name: CI/CD Workflow
 
-on: push
+on:
+  push:
+    branches: [main]
 
 jobs:
   first_job:
