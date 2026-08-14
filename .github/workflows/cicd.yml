@@ -13,19 +13,33 @@ jobs:
         run: |
           cd backend
           podman build -t emergency-location .
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push image
+        run: podman push docker.io/${{ vars.DOCKERHUB_USERNAME }}/emergency-location:latest
 
-#      - name: Connect using SSH
-#        uses: appleboy/ssh-action@v1
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USERNAME }}
-#          key: ${{ secrets.SERVER_SSH }}
-#          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
-#          port: 22
-#          script: whoami
+      - name: Copy compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH }}
+          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
+          port: 22
+          source: "compose.yml"
+          target: "/app"
+
+      - name: Connect using SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH }}
+          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
+          port: 22
+          script: |
+            cd /app
+            ls -la
