@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:18
+    image: docker.io/library/postgres:18
     container_name: emergency-location-db
     ports:
       - "5432:5432"
@@ -14,7 +14,7 @@ services:
       - db_password
 
   backend:
-    image: emergency-location:latest
+    image: docker.io/smilekundev/emergency-location:latest
     container_name: backend
     ports:
       - "127.0.0.1:8080:8080"

@@ -1,7 +1,5 @@
 FROM alpine:3.24 AS tini
-RUN apk add --no-cache tini \
-    && which tini \
-    && apk info -L tini
+RUN apk add --no-cache tini
 
 FROM python:3.13-alpine AS builder
 WORKDIR /backend
