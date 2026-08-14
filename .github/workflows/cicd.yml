@@ -6,12 +6,20 @@ jobs:
   first_job:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH }}
-          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
-          port: 22
-          script: whoami
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build image
+        run: |
+          cd backend
+          podman build -t emergency-location .
+
+#      - name: Connect using SSH
+#        uses: appleboy/ssh-action@v1
+#        with:
+#          host: ${{ secrets.SERVER_HOST }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SERVER_SSH }}
+#          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
+#          port: 22
+#          script: whoami
