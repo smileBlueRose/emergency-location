@@ -8,3 +8,8 @@ jobs:
     steps:
       - name: Print Hello World
         run: echo 'Hello World'
+      - name: Execute Multiline
+        run: |
+          pwd
+          ls -la
+          whoami
