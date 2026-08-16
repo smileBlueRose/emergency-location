@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { Header } from '../../components/layout/Header';
 import { MapPanel } from '../../components/map/MapPanel';
-import { PhotoPanel } from '../../components/photos/PhotoPanel';
 import { LocationSharing } from '../../components/location/LocationSharing';
+import { PhotoUploader } from '../../components/photos/PhotoUploader';
 
 export function UserPage() {
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -30,8 +30,8 @@ export function UserPage() {
             setLongitude(lon);
           }}
         />
-
-        <PhotoPanel />
+        <PhotoUploader requestId={3} />
+        
       </main>
     </div>
   );
