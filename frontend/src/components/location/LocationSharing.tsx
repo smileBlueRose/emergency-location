@@ -9,9 +9,10 @@ interface LocationSharingProps {
     latitude: number,
     longitude: number,
   ) => void;
+  onStatusChange: (status: LocationStatus) => void;
 }
 
-type LocationStatus =
+export type LocationStatus =
   | 'idle'
   | 'requesting'
   | 'sending'
@@ -21,76 +22,89 @@ type LocationStatus =
 export function LocationSharing({
   requestId,
   onLocationReceived,
+  onStatusChange,
 }: LocationSharingProps) {
-    const [status, setStatus] = useState<LocationStatus>('idle');
-    const [mapUrl, setMapUrl] = useState<string | null>(null);
+  const [status, setStatus] =
+    useState<LocationStatus>('idle');
 
-    async function handleShareLocation() {
+  const [mapUrl, setMapUrl] =
+    useState<string | null>(null);
+
+  function updateStatus(nextStatus: LocationStatus) {
+    setStatus(nextStatus);
+    onStatusChange(nextStatus);
+  }
+
+  async function handleShareLocation() {
     try {
-        setStatus('requesting');
+      updateStatus('requesting');
 
-        const { latitude, longitude } =
+      const { latitude, longitude } =
         await getCurrentPosition();
-        onLocationReceived(latitude, longitude);
 
-        const geoUrl = create2GisGeoUrl(
-        latitude,
-        longitude,
-        );
+      onLocationReceived(latitude, longitude);
 
-        setMapUrl(geoUrl);
+      setMapUrl(
+        create2GisGeoUrl(
+          latitude,
+          longitude,
+        ),
+      );
 
-        setStatus('sending');
+      updateStatus('sending');
 
-        await locationApi.submitLocation(
+      await locationApi.submitLocation(
         requestId,
         latitude,
         longitude,
-        );
+      );
 
-        setStatus('success');
+      updateStatus('success');
     } catch (error) {
-        console.error('Failed to share location:', error);
-        setStatus('error');
+      console.error(
+        'Failed to share location:',
+        error,
+      );
+
+      updateStatus('error');
     }
-    }
+  }
 
-return (
-  <section>
-    <button
-      type="button"
-      onClick={handleShareLocation}
-      disabled={
-        status === 'requesting' ||
-        status === 'sending'
-      }
-    >
-      {status === 'requesting' &&
-        'Определяем местоположение...'}
-
-      {status === 'sending' &&
-        'Отправляем геолокацию...'}
-
-      {status === 'idle' &&
-        'Поделиться геолокацией'}
-
-      {status === 'success' &&
-        'Геолокация отправлена'}
-
-      {status === 'error' &&
-        'Повторить отправку'}
-    </button>
-
-    {mapUrl && (
-      <a
-        href={mapUrl}
-        target="_blank"
-        rel="noreferrer"
+  return (
+    <section className="location-sharing">
+      <button
+        type="button"
+        onClick={handleShareLocation}
+        disabled={
+          status === 'requesting' ||
+          status === 'sending'
+        }
       >
-        Открыть местоположение в 2GIS
-      </a>
-    )}
-  </section>
-);
-  
+        {status === 'requesting' &&
+          'Определяем местоположение...'}
+
+        {status === 'sending' &&
+          'Отправляем геолокацию...'}
+
+        {status === 'idle' &&
+          'Поделиться геолокацией'}
+
+        {status === 'success' &&
+          'Геолокация отправлена'}
+
+        {status === 'error' &&
+          'Повторить отправку'}
+      </button>
+
+      {mapUrl && status === 'success' && (
+        <a
+          href={mapUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Открыть местоположение в 2GIS
+        </a>
+      )}
+    </section>
+  );
 }
