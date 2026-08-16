@@ -7,7 +7,7 @@ from repositories.location import (
 from models.location import LocationShareRequest, LocationShareRecord
 from services.phone import PhoneService
 from datetime import datetime, UTC, timedelta
-from core.exceptions import NotFoundError
+from core.exceptions import NotFoundError, PreviousRequestStillActive
 from loguru import logger
 
 from services.sms import SmsService
@@ -15,6 +15,8 @@ from services.whatsapp import WhatsAppService
 
 
 class CreateLocationShareRequestUseCase:
+    __slots__ = ("_repo", "_sms_service", "_wa_service")
+
     def __init__(
         self,
         repository: LocationShareRequestRepository,
@@ -29,28 +31,50 @@ class CreateLocationShareRequestUseCase:
         phone = PhoneService.normalize(phone)
         last_request = await self._get_last_request(phone=phone)
 
-        if last_request is not None and last_request.expired_at > datetime.now(tz=UTC):
-            logger.info(
-                "Previous request wiht id={} is still active until {}",
-                last_request.id,
-                last_request.expired_at,
-            )
-            return last_request
+        if last_request:
+            self._check_cooldown(last_request)
+
+            if last_request.expired_at > datetime.now(tz=UTC):
+                logger.info(
+                    "Previous request with id={} is still active until {}, resending sms",
+                    last_request.id,
+                    last_request.expired_at,
+                )
+                await self._send_notifications(last_request)
+                return last_request
 
         share_request = await self._create_share_request(phone=phone)
-        share_url = get_share_request_url(share_request.id)
+        await self._send_notifications(share_request)
+
+        return share_request
+
+    @staticmethod
+    def _check_cooldown(last_request: LocationShareRequest) -> None:
+        """:raises PreviousRequestStillActive:"""
+        cooldown_until = last_request.created_at + timedelta(
+            seconds=settings.location.next_request_wait
+        )
+        now = datetime.now(tz=UTC)
+        if cooldown_until > now:
+            logger.info(
+                "Previous request with id={} is on cooldown until {}",
+                last_request.id,
+                cooldown_until,
+            )
+            raise PreviousRequestStillActive(retry_after=(cooldown_until - now).seconds)
+
+    async def _send_notifications(self, request: LocationShareRequest) -> None:
+        share_url = get_share_request_url(request.id)
 
         sms = await self._sms_service.send_location_share_request(
-            phone=phone, url=share_url
+            phone=request.phone, url=share_url
         )
         logger.info("Request sms sent: sms_id={}", sms.message_id)
 
         wa_msg = await self._wa_service.send_location_share_request(
-            phone=phone, link=share_url
+            phone=request.phone, link=share_url
         )
         logger.info("Request whatsapp message sent: msg_id={}", wa_msg.message_id)
-
-        return share_request
 
     async def _create_share_request(self, phone: str) -> LocationShareRequest:
         expired_at = datetime.now(tz=UTC) + timedelta(
@@ -76,6 +100,8 @@ class CreateLocationShareRequestUseCase:
 
 
 class SubmitLocationShareRecordUseCase:
+    __slots__ = ("_request_repo", "_record_repo")
+
     def __init__(
         self,
         request_repo: LocationShareRequestRepository,
@@ -100,6 +126,8 @@ class SubmitLocationShareRecordUseCase:
 
 
 class GetLocationShareRecordsUseCase:
+    __slots__ = ("_repo",)
+
     def __init__(self, repo: LocationShareRecordRepository):
         self._repo = repo
 

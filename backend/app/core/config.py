@@ -68,7 +68,8 @@ class PhoneConfig(BaseModel):
 
 
 class LocationConfig(BaseModel):
-    request_ttl: int = 60 * 30
+    request_ttl: int = 3600
+    next_request_wait: int = 3 * 30
 
 
 class SmsConfig(BaseModel):
