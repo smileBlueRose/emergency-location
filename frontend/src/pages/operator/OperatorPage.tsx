@@ -10,7 +10,10 @@ export function OperatorPage() {
       <main className="operator-page">
         <section className="operator-page__content">
           <div className="operator-page__map">
-            <MapPanel />
+            <MapPanel 
+              latitude={null}
+              longitude={null}
+            />
           </div>
 
           <div className="operator-page__photos">
