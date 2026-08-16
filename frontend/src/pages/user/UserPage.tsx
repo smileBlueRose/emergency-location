@@ -1,8 +1,14 @@
+import { useState } from 'react';
+
 import { Header } from '../../components/layout/Header';
 import { MapPanel } from '../../components/map/MapPanel';
 import { PhotoPanel } from '../../components/photos/PhotoPanel';
+import { LocationSharing } from '../../components/location/LocationSharing';
 
 export function UserPage() {
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
   return (
     <div className="page">
       <Header />
@@ -12,7 +18,18 @@ export function UserPage() {
           Вы делитесь геолокацией с оператором
         </section>
 
-        <MapPanel />
+        <MapPanel
+          latitude={latitude}
+          longitude={longitude}
+        />
+
+        <LocationSharing
+          requestId={3}
+          onLocationReceived={(lat, lon) => {
+            setLatitude(lat);
+            setLongitude(lon);
+          }}
+        />
 
         <PhotoPanel />
       </main>

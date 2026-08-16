@@ -1,3 +1,5 @@
+@import 'leaflet/dist/leaflet.css';
+
 :root {
   font-family: Inter, system-ui, sans-serif;
   color: #111;
@@ -74,10 +76,21 @@ input {
 
 .map-panel {
   width: 100%;
-  min-height: 320px;
-  border-radius: 6px;
+  height: 420px;
+  border-radius: 8px;
   overflow: hidden;
   background: #f2f2f2;
+}
+
+.map-panel__map {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 899px) {
+  .map-panel {
+    height: 360px;
+  }
 }
 
 .map-panel__placeholder {
