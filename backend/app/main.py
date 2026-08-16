@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from api import router as api_router
 from core.config import settings, MEDIA_ROOT
 from fastapi import FastAPI
@@ -28,6 +30,13 @@ main_app.include_router(api_router, prefix=settings.api_prefix.self)
 register_exception_handlers(main_app)
 configure_logger(main_app)
 
+main_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # TODO: Refactor it later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def main() -> None:
     logger.info("Run main")
