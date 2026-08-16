@@ -1,9 +1,14 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from '../../App';
+import { OperatorPage } from '../../pages/operator/OperatorPage';
+import { UserPage } from '../../pages/user/UserPage';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: <UserPage />,
+  },
+  {
+    path: '/operator',
+    element: <OperatorPage />,
   },
 ]);
