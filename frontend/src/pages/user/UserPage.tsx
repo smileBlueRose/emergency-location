@@ -7,8 +7,11 @@ import {
   type LocationStatus,
 } from '../../components/location/LocationSharing';
 import { PhotoUploader } from '../../components/photos/PhotoUploader';
+import { useLocale } from '../../app/providers/LocaleProvider';
 
 export function UserPage() {
+  const { t } = useLocale();
+
   const [latitude, setLatitude] =
     useState<number | null>(null);
 
@@ -25,25 +28,25 @@ export function UserPage() {
       <main className="user-page">
         {locationStatus === 'success' && (
           <section className="user-page__status">
-            Вы делитесь геолокацией с оператором
+            {t.location.shared}
           </section>
         )}
 
         {locationStatus === 'requesting' && (
           <section className="user-page__status">
-            Определяем ваше местоположение...
+            {t.location.requesting}
           </section>
         )}
 
         {locationStatus === 'sending' && (
           <section className="user-page__status">
-            Отправляем геолокацию оператору...
+            {t.location.sending}
           </section>
         )}
 
         {locationStatus === 'error' && (
           <section className="user-page__status user-page__status--error">
-            Не удалось отправить геолокацию. Попробуйте ещё раз.
+            {t.location.error}
           </section>
         )}
 
