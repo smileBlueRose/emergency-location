@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { Header } from '../../components/layout/Header';
+import { Footer } from '../../components/layout/Footer';
 import { MapPanel } from '../../components/map/MapPanel';
 import {
   LocationSharing,
@@ -8,10 +10,14 @@ import {
 } from '../../components/location/LocationSharing';
 import { PhotoUploader } from '../../components/photos/PhotoUploader';
 import { useLocale } from '../../app/providers/LocaleProvider';
-import { Footer } from '../../components/layout/Footer';
 
 export function UserPage() {
   const { t } = useLocale();
+
+  const { requestId: requestIdParam } =
+    useParams<{ requestId: string }>();
+
+  const requestId = Number(requestIdParam);
 
   const [latitude, setLatitude] =
     useState<number | null>(null);
@@ -21,6 +27,22 @@ export function UserPage() {
 
   const [locationStatus, setLocationStatus] =
     useState<LocationStatus>('idle');
+
+  if (!Number.isInteger(requestId)) {
+    return (
+      <div className="page">
+        <Header />
+
+        <main className="user-page">
+          <section className="user-page__status user-page__status--error">
+            {t.location.error}
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -57,7 +79,7 @@ export function UserPage() {
         />
 
         <LocationSharing
-          requestId={3}
+          requestId={requestId}
           onLocationReceived={(lat, lon) => {
             setLatitude(lat);
             setLongitude(lon);
@@ -65,8 +87,11 @@ export function UserPage() {
           onStatusChange={setLocationStatus}
         />
 
-        <PhotoUploader requestId={3} />
+        <PhotoUploader
+          requestId={requestId}
+        />
       </main>
+
       <Footer />
     </div>
   );

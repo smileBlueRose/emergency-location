@@ -23,6 +23,11 @@ export const translations = {
     request: {
       expired: 'Запрос истёк',
       remaining: 'Время действия',
+      phone: 'Номер телефона',
+      create: 'Запросить геолокацию',
+      creating: 'Создаём заявку...',
+      error: 'Не удалось создать заявку',
+      number: 'Заявка',
     },
 
     operator: {
@@ -33,7 +38,7 @@ export const translations = {
       copyLink: 'Копировать ссылку',
       photos: 'Фоторепортаж пострадавшего',
       photosWaiting: 'В ожидании загрузки фото ...',
-},
+    },
   },
 
   kk: {
@@ -60,6 +65,11 @@ export const translations = {
     request: {
       expired: 'Сұраныс мерзімі аяқталды',
       remaining: 'Қолданылу уақыты',
+      phone: 'Телефон нөмірі',
+      create: 'Геолокацияны сұрау',
+      creating: 'Өтінім жасалуда...',
+      error: 'Өтінімді жасау мүмкін болмады',
+      number: 'Өтінім',
     },
 
     operator: {
@@ -70,7 +80,7 @@ export const translations = {
       copyLink: 'Сілтемені көшіру',
       photos: 'Зардап шегушінің фотосуреттері',
       photosWaiting: 'Фотосуреттерді жүктеу күтілуде ...',
-},
+    },
   },
 
   en: {
@@ -97,6 +107,11 @@ export const translations = {
     request: {
       expired: 'Request expired',
       remaining: 'Time remaining',
+      phone: 'Phone number',
+      create: 'Request location',
+      creating: 'Creating request...',
+      error: 'Failed to create request',
+      number: 'Request',
     },
 
     operator: {
@@ -107,7 +122,7 @@ export const translations = {
       copyLink: 'Copy link',
       photos: 'Victim photo report',
       photosWaiting: 'Waiting for photo upload ...',
-},
+    },
   },
 } as const;
 
