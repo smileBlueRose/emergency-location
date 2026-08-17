@@ -48,4 +48,25 @@ export const locationApi = {
 
     return response.data;
   },
+
+  async getLatestLocation(
+  requestId: number,
+): Promise<LocationShareRecord | null> {
+  const response = await apiClient.get<LocationShareRecordList>(
+    `${LOCATION_SHARES_PATH}/${requestId}/records`,
+    {
+      params: {
+        include_all: true,
+      },
+    },
+  );
+
+  const items = response.data.items;
+
+  if (items.length === 0) {
+    return null;
+  }
+
+    return items[items.length - 1];
+  },
 };
