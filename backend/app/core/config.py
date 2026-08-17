@@ -33,8 +33,8 @@ class ApiPath(BaseModel):
     get_location_records: str = "/{request_id}/records"
     ws_location_updates: str = "/ws/{request_id}"
 
-    get_photo_shares: str = ""
     upload_photo_shares: str = ""
+    get_photo_shares: str = "/{request_id}/photos"
 
 
 class DatabaseConfig(BaseModel):
