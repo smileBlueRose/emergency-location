@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { locationApi } from '../../services/api/location';
 import { getCurrentPosition } from '../../services/geolocation';
 import { create2GisGeoUrl } from '../../services/maps';
+import { useLocale } from '../../app/providers/LocaleProvider';
 
 interface LocationSharingProps {
   requestId: number;
@@ -24,6 +25,8 @@ export function LocationSharing({
   onLocationReceived,
   onStatusChange,
 }: LocationSharingProps) {
+  const { t } = useLocale();
+
   const [status, setStatus] =
     useState<LocationStatus>('idle');
 
@@ -81,19 +84,19 @@ export function LocationSharing({
         }
       >
         {status === 'requesting' &&
-          'Определяем местоположение...'}
+          t.location.requesting}
 
         {status === 'sending' &&
-          'Отправляем геолокацию...'}
+          t.location.sending}
 
         {status === 'idle' &&
-          'Поделиться геолокацией'}
+          t.location.share}
 
         {status === 'success' &&
-          'Геолокация отправлена'}
+          t.location.success}
 
         {status === 'error' &&
-          'Повторить отправку'}
+          t.location.error}
       </button>
 
       {mapUrl && status === 'success' && (
@@ -102,7 +105,7 @@ export function LocationSharing({
           target="_blank"
           rel="noreferrer"
         >
-          Открыть местоположение в 2GIS
+          {t.location.open2gis}
         </a>
       )}
     </section>
