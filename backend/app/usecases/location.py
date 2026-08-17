@@ -1,5 +1,6 @@
 from core.config import settings
 from core.utils import get_share_request_url
+from gateway.websocket import LocationWebSocketGateway
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
@@ -100,15 +101,17 @@ class CreateLocationShareRequestUseCase:
 
 
 class SubmitLocationShareRecordUseCase:
-    __slots__ = ("_request_repo", "_record_repo")
+    __slots__ = ("_request_repo", "_record_repo", "_ws_gateway")
 
     def __init__(
         self,
         request_repo: LocationShareRequestRepository,
         record_repo: LocationShareRecordRepository,
+        ws_gateway: LocationWebSocketGateway,
     ):
         self._request_repo = request_repo
         self._record_repo = record_repo
+        self._ws_gateway = ws_gateway
 
     async def execute(
         self, request_id: int, latitude: float, longitude: float
@@ -122,8 +125,26 @@ class SubmitLocationShareRecordUseCase:
         location_record = LocationShareRecord(
             request_id=request_id, latitude=latitude, longitude=longitude
         )
-        return await self._record_repo.create(location_record)
+        location_record = await self._record_repo.create(location_record)
 
+        await self._broadcast(location_record)
+
+        return location_record
+
+    async def _broadcast(self, record: LocationShareRecord) -> None:
+        await self._ws_gateway.broadcast(
+            record.request_id,
+            {
+                "id": record.id,
+                "latitude": record.latitude,
+                "longitude": record.longitude,
+            },
+        )
+        logger.debug(
+            "Location record broadcasted: request_id={}, record_id={}",
+            record.request_id,
+            record.id,
+        )
 
 class GetLocationShareRecordsUseCase:
     __slots__ = ("_repo",)

@@ -31,6 +31,7 @@ class ApiPath(BaseModel):
     create_location_share_request: str = ""
     submit_location_record: str = "/{request_id}/records"
     get_location_records: str = "/{request_id}/records"
+    ws_location_updates: str = "/ws/{request_id}"
 
     get_photo_shares: str = ""
     upload_photo_shares: str = ""

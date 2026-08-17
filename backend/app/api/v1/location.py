@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket
+from fastapi.websockets import WebSocketDisconnect
 
 from api.dependencies import (
     get_create_location_share_request_usecase,
     get_submit_location_share_record_usecase,
     get_get_location_share_record_use_case,
+    get_location_ws_gateway,
 )
 from core.config import settings
+from gateway.websocket import LocationWebSocketGateway
 from schemas.location import (
     LocationShareRequestSchema,
     LocationShareRecordSchema,
@@ -21,6 +24,20 @@ from loguru import logger
 from models.location import LocationShareRequest, LocationShareRecord
 
 router = APIRouter(prefix=settings.api_prefix.location_shares)
+
+
+@router.websocket(settings.api_path.ws_location_updates)
+async def location_updates_ws(
+    websocket: WebSocket,
+    request_id: int,
+    gateway: LocationWebSocketGateway = Depends(get_location_ws_gateway),
+) -> None:
+    await gateway.connect(request_id, websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        gateway.disconnect(request_id, websocket)
 
 
 @router.post(

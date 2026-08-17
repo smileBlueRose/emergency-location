@@ -1,3 +1,4 @@
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,6 +6,7 @@ from core.http import client_provider
 from db.helper import db_helper
 from gateway.file_storage import LocalFileStorageGateway
 from gateway.sms.twilio import SmsTwilioGateway
+from gateway.websocket import LocationWebSocketGateway
 from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
@@ -26,13 +28,24 @@ from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
 # TODO: remove `get_` prefix from all dependency functions
 
 
+# TODO: Make DependencyGateway class
+location_ws_gateway: LocationWebSocketGateway | None = None
+def get_location_ws_gateway() -> LocationWebSocketGateway:
+    global location_ws_gateway
+
+    if location_ws_gateway is None:
+        location_ws_gateway = LocationWebSocketGateway()
+
+    return location_ws_gateway
+
+
 def get_submit_location_share_record_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> SubmitLocationShareRecordUseCase:
     request_repo = LocationShareRequestRepository(session)
     record_repo = LocationShareRecordRepository(session)
     return SubmitLocationShareRecordUseCase(
-        request_repo=request_repo, record_repo=record_repo
+        request_repo=request_repo, record_repo=record_repo, ws_gateway=get_location_ws_gateway()
     )
 
 
