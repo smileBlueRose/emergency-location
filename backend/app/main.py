@@ -38,6 +38,7 @@ main_app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def main() -> None:
     logger.info("Run main")
     uvicorn.run(

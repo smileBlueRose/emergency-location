@@ -146,6 +146,7 @@ class SubmitLocationShareRecordUseCase:
             record.id,
         )
 
+
 class GetLocationShareRecordsUseCase:
     __slots__ = ("_repo",)
 

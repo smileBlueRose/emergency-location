@@ -35,6 +35,7 @@ class ApiPath(BaseModel):
 
     upload_photo_shares: str = ""
     get_photo_shares: str = "/{request_id}/photos"
+    ws_photo_updates: str = "/ws/{request_id}"
 
 
 class DatabaseConfig(BaseModel):

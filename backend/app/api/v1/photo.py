@@ -1,13 +1,33 @@
-from fastapi import APIRouter, UploadFile, Depends
+from fastapi import APIRouter, UploadFile, Depends, WebSocket, WebSocketDisconnect
 
-from api.dependencies import get_photo_share_upload_usecase, get_get_photo_share_usecase
+from api.dependencies import (
+    get_photo_share_upload_usecase,
+    get_get_photo_share_usecase,
+    get_photo_ws_gateway,
+)
 from core.config import settings
 from core.utils import get_photo_share_url
+from gateway.websocket import PhotoWebSocketGateway
 from schemas.common import File
 from schemas.photo import PhotoUploadSchema, PhotoShareListSchema, PhotoShareSchema
 from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
 
 router = APIRouter(prefix=settings.api_prefix.photo_shares)
+
+
+@router.websocket(settings.api_path.ws_photo_updates)
+async def photo_updates_ws(
+    websocket: WebSocket,
+    request_id: int,
+    gateway: PhotoWebSocketGateway = Depends(get_photo_ws_gateway),
+) -> None:
+
+    await gateway.connect(request_id, websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        gateway.disconnect(request_id, websocket)
 
 
 @router.post(

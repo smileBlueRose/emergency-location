@@ -1,4 +1,3 @@
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,7 +5,7 @@ from core.http import client_provider
 from db.helper import db_helper
 from gateway.file_storage import LocalFileStorageGateway
 from gateway.sms.twilio import SmsTwilioGateway
-from gateway.websocket import LocationWebSocketGateway
+from gateway.websocket import LocationWebSocketGateway, PhotoWebSocketGateway
 from gateway.whatsapp import WhatsAppGraphApiGateway
 from repositories.location import (
     LocationShareRequestRepository,
@@ -30,6 +29,9 @@ from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
 
 # TODO: Make DependencyGateway class
 location_ws_gateway: LocationWebSocketGateway | None = None
+photo_ws_gateway: PhotoWebSocketGateway | None = None
+
+
 def get_location_ws_gateway() -> LocationWebSocketGateway:
     global location_ws_gateway
 
@@ -39,13 +41,24 @@ def get_location_ws_gateway() -> LocationWebSocketGateway:
     return location_ws_gateway
 
 
+def get_photo_ws_gateway() -> PhotoWebSocketGateway:
+    global photo_ws_gateway
+
+    if photo_ws_gateway is None:
+        photo_ws_gateway = PhotoWebSocketGateway()
+
+    return photo_ws_gateway
+
+
 def get_submit_location_share_record_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> SubmitLocationShareRecordUseCase:
     request_repo = LocationShareRequestRepository(session)
     record_repo = LocationShareRecordRepository(session)
     return SubmitLocationShareRecordUseCase(
-        request_repo=request_repo, record_repo=record_repo, ws_gateway=get_location_ws_gateway()
+        request_repo=request_repo,
+        record_repo=record_repo,
+        ws_gateway=get_location_ws_gateway(),
     )
 
 
@@ -94,7 +107,9 @@ async def get_photo_share_upload_usecase(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> UploadPhotoShareUseCase:
     return UploadPhotoShareUseCase(
-        repo=PhotoShareRepository(session), gateway=LocalFileStorageGateway()
+        repo=PhotoShareRepository(session),
+        gateway=LocalFileStorageGateway(),
+        ws_gateway=get_photo_ws_gateway(),
     )
 
 

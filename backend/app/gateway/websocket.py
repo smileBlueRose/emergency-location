@@ -1,7 +1,8 @@
 from fastapi import WebSocket
 from typing import Any
 
-class LocationWebSocketGateway:
+
+class WebSocketGateway:
     __slots__ = ("connections",)
 
     def __init__(self) -> None:
@@ -19,6 +20,14 @@ class LocationWebSocketGateway:
         if not connections:
             del self.connections[request_id]
 
+
+class LocationWebSocketGateway(WebSocketGateway):
+    async def broadcast(self, request_id: int, data: dict[str, Any]) -> None:
+        for websocket in self.connections.get(request_id, []):
+            await websocket.send_json(data)
+
+
+class PhotoWebSocketGateway(WebSocketGateway):
     async def broadcast(self, request_id: int, data: dict[str, Any]) -> None:
         for websocket in self.connections.get(request_id, []):
             await websocket.send_json(data)
