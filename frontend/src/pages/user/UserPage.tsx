@@ -8,6 +8,7 @@ import {
 } from '../../components/location/LocationSharing';
 import { PhotoUploader } from '../../components/photos/PhotoUploader';
 import { useLocale } from '../../app/providers/LocaleProvider';
+import { Footer } from '../../components/layout/Footer';
 
 export function UserPage() {
   const { t } = useLocale();
@@ -66,6 +67,7 @@ export function UserPage() {
 
         <PhotoUploader requestId={3} />
       </main>
+      <Footer />
     </div>
   );
 }

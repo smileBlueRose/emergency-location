@@ -24,6 +24,16 @@ export const translations = {
       expired: 'Запрос истёк',
       remaining: 'Время действия',
     },
+
+    operator: {
+      request: 'Заявка',
+      locationReceived: 'Геоданные получены',
+      locationWaiting: 'Ожидание геоданных',
+      shareData: 'Поделиться данными',
+      copyLink: 'Копировать ссылку',
+      photos: 'Фоторепортаж пострадавшего',
+      photosWaiting: 'В ожидании загрузки фото ...',
+},
   },
 
   kk: {
@@ -51,6 +61,16 @@ export const translations = {
       expired: 'Сұраныс мерзімі аяқталды',
       remaining: 'Қолданылу уақыты',
     },
+
+    operator: {
+      request: 'Сұраныс',
+      locationReceived: 'Геодеректер алынды',
+      locationWaiting: 'Геодеректер күтілуде',
+      shareData: 'Деректермен бөлісу',
+      copyLink: 'Сілтемені көшіру',
+      photos: 'Зардап шегушінің фотосуреттері',
+      photosWaiting: 'Фотосуреттерді жүктеу күтілуде ...',
+},
   },
 
   en: {
@@ -78,6 +98,16 @@ export const translations = {
       expired: 'Request expired',
       remaining: 'Time remaining',
     },
+
+    operator: {
+      request: 'Request',
+      locationReceived: 'Location data received',
+      locationWaiting: 'Waiting for location data',
+      shareData: 'Share data',
+      copyLink: 'Copy link',
+      photos: 'Victim photo report',
+      photosWaiting: 'Waiting for photo upload ...',
+},
   },
 } as const;
 
