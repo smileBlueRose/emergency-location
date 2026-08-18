@@ -1,33 +1,45 @@
 from fastapi import WebSocket
 from typing import Any
+from core.interfaces import WebSocketGateway
 
 
-class WebSocketGateway:
+class RequestWebSocketGateway(WebSocketGateway[int, Any]):
     __slots__ = ("connections",)
 
     def __init__(self) -> None:
         self.connections: dict[int, list[WebSocket]] = {}
 
-    async def connect(self, request_id: int, websocket: WebSocket) -> None:
+    async def connect(self, key: int, websocket: WebSocket) -> None:
+        """
+        :param key: request_id integer
+        :param websocket: fastapi.WebSocket
+        """
         await websocket.accept()
-        self.connections.setdefault(request_id, []).append(websocket)
+        self.connections.setdefault(key, []).append(websocket)
 
-    def disconnect(self, request_id: int, websocket: WebSocket) -> None:
-        connections = self.connections.get(request_id)
+    def disconnect(self, key: int, websocket: WebSocket) -> None:
+        """
+        :param key: request_id integer
+        :param websocket: fastapi.WebSocket
+        """
+        connections = self.connections.get(key)
         if connections is None:
             return
         connections.remove(websocket)
         if not connections:
-            del self.connections[request_id]
+            del self.connections[key]
+
+    async def broadcast(self, key: int, data: dict[str, str]) -> None:
+        raise NotImplementedError()
 
 
-class LocationWebSocketGateway(WebSocketGateway):
-    async def broadcast(self, request_id: int, data: dict[str, Any]) -> None:
-        for websocket in self.connections.get(request_id, []):
+class LocationWebSocketGateway(RequestWebSocketGateway):
+    async def broadcast(self, key: int, data: dict[str, Any]) -> None:
+        for websocket in self.connections.get(key, []):
             await websocket.send_json(data)
 
 
-class PhotoWebSocketGateway(WebSocketGateway):
-    async def broadcast(self, request_id: int, data: dict[str, Any]) -> None:
-        for websocket in self.connections.get(request_id, []):
+class PhotoWebSocketGateway(RequestWebSocketGateway):
+    async def broadcast(self, key: int, data: dict[str, Any]) -> None:
+        for websocket in self.connections.get(key, []):
             await websocket.send_json(data)
