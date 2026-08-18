@@ -1,6 +1,7 @@
+from typing import Any
+
 from core.config import settings
 from core.utils import get_share_request_url
-from gateway.websocket import LocationWebSocketGateway
 from repositories.location import (
     LocationShareRequestRepository,
     LocationShareRecordRepository,
@@ -13,6 +14,7 @@ from loguru import logger
 
 from services.sms import SmsService
 from services.whatsapp import WhatsAppService
+from core.interfaces import WebSocketGateway
 
 
 class CreateLocationShareRequestUseCase:
@@ -107,7 +109,7 @@ class SubmitLocationShareRecordUseCase:
         self,
         request_repo: LocationShareRequestRepository,
         record_repo: LocationShareRecordRepository,
-        ws_gateway: LocationWebSocketGateway,
+        ws_gateway: WebSocketGateway[int, Any],
     ):
         self._request_repo = request_repo
         self._record_repo = record_repo

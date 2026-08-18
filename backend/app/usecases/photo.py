@@ -1,11 +1,13 @@
+
 from core.interfaces import FileStorageGateway
 from core.utils import get_photo_share_url
-from gateway.websocket import PhotoWebSocketGateway
 from repositories.photo import PhotoShareRepository
 from schemas.common import File
 from models.photo import PhotoShare
 from services.image import ImageService
 from loguru import logger
+from core.interfaces import WebSocketGateway
+from typing import Any
 
 
 class UploadPhotoShareUseCase:
@@ -15,7 +17,7 @@ class UploadPhotoShareUseCase:
         self,
         repo: PhotoShareRepository,
         gateway: FileStorageGateway,
-        ws_gateway: PhotoWebSocketGateway,
+        ws_gateway: WebSocketGateway[int, Any],
     ):
         self._repo = repo
         self._gateway = gateway
