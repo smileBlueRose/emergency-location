@@ -3,7 +3,9 @@ export interface Coordinates {
   longitude: number;
 }
 
-export function getCurrentPosition(): Promise<Coordinates> {
+export function getCurrentPosition(
+  options: PositionOptions = {},
+): Promise<Coordinates> {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by this browser.'));
@@ -24,6 +26,7 @@ export function getCurrentPosition(): Promise<Coordinates> {
         enableHighAccuracy: true,
         timeout: 10_000,
         maximumAge: 0,
+        ...options,
       },
     );
   });
