@@ -1,12 +1,7 @@
 from fastapi import APIRouter, Depends, WebSocket
 from fastapi.websockets import WebSocketDisconnect
 
-from api.dependencies import (
-    get_create_location_share_request_usecase,
-    get_submit_location_share_record_usecase,
-    get_get_location_share_record_use_case,
-    get_location_ws_gateway,
-)
+from api.dependencies import dependency
 from core.config import settings
 from gateway.websocket import LocationWebSocketGateway
 from schemas.location import (
@@ -30,7 +25,7 @@ router = APIRouter(prefix=settings.api_prefix.location_shares)
 async def location_updates_ws(
     websocket: WebSocket,
     request_id: int,
-    gateway: LocationWebSocketGateway = Depends(get_location_ws_gateway),
+    gateway: LocationWebSocketGateway = Depends(dependency.location_ws_gateway),
 ) -> None:
     await gateway.connect(request_id, websocket)
     try:
@@ -48,7 +43,7 @@ async def location_updates_ws(
 async def create_location_share_request(
     phone: str = Body(..., embed=True),
     usecase: CreateLocationShareRequestUseCase = Depends(
-        get_create_location_share_request_usecase
+        dependency.create_location_share_request_usecase
     ),
 ) -> LocationShareRequest:
     logger.info("Creating location share request: phone={!r}", phone)
@@ -66,7 +61,7 @@ async def submit_location_record(
     latitude: float = Body(..., embed=True),
     longitude: float = Body(..., embed=True),
     usecase: SubmitLocationShareRecordUseCase = Depends(
-        get_submit_location_share_record_usecase
+        dependency.submit_location_share_record_usecase
     ),
 ) -> LocationShareRecord:
     logger.info(
@@ -92,7 +87,7 @@ async def get_location_records(
     request_id: int,
     include_all: bool = False,
     usecase: GetLocationShareRecordsUseCase = Depends(
-        get_get_location_share_record_use_case
+        dependency.get_location_share_record_use_case
     ),
 ) -> LocationShareRecordListSchema:
     logger.info(
