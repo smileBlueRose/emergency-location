@@ -24,96 +24,91 @@ from twilio.rest import Client as TwilioClient
 from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
 
 
-# TODO: remove `get_` prefix from all dependency functions
+class Dependency:
+    _location_ws_gateway: LocationWebSocketGateway | None = None
+    _photo_ws_gateway: PhotoWebSocketGateway | None = None
 
+    def location_ws_gateway(self) -> LocationWebSocketGateway:
+        if self._location_ws_gateway is None:
+            self._location_ws_gateway = LocationWebSocketGateway()
 
-# TODO: Make DependencyGateway class
-location_ws_gateway: LocationWebSocketGateway | None = None
-photo_ws_gateway: PhotoWebSocketGateway | None = None
+        return self._location_ws_gateway
 
+    def photo_ws_gateway(self) -> PhotoWebSocketGateway:
+        if self._photo_ws_gateway is None:
+            self._photo_ws_gateway = PhotoWebSocketGateway()
 
-def get_location_ws_gateway() -> LocationWebSocketGateway:
-    global location_ws_gateway
+        return self._photo_ws_gateway
 
-    if location_ws_gateway is None:
-        location_ws_gateway = LocationWebSocketGateway()
+    @staticmethod
+    def submit_location_share_record_usecase(
+        session: AsyncSession = Depends(db_helper.session_getter),
+    ) -> SubmitLocationShareRecordUseCase:
+        request_repo = LocationShareRequestRepository(session)
+        record_repo = LocationShareRecordRepository(session)
+        return SubmitLocationShareRecordUseCase(
+            request_repo=request_repo,
+            record_repo=record_repo,
+            ws_gateway=dependency.location_ws_gateway(),
+        )
 
-    return location_ws_gateway
+    @staticmethod
+    def get_location_share_record_use_case(
+        session: AsyncSession = Depends(db_helper.session_getter),
+    ) -> GetLocationShareRecordsUseCase:
+        repo = LocationShareRecordRepository(session)
+        return GetLocationShareRecordsUseCase(repo)
 
-
-def get_photo_ws_gateway() -> PhotoWebSocketGateway:
-    global photo_ws_gateway
-
-    if photo_ws_gateway is None:
-        photo_ws_gateway = PhotoWebSocketGateway()
-
-    return photo_ws_gateway
-
-
-def get_submit_location_share_record_usecase(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> SubmitLocationShareRecordUseCase:
-    request_repo = LocationShareRequestRepository(session)
-    record_repo = LocationShareRecordRepository(session)
-    return SubmitLocationShareRecordUseCase(
-        request_repo=request_repo,
-        record_repo=record_repo,
-        ws_gateway=get_location_ws_gateway(),
-    )
-
-
-def get_get_location_share_record_use_case(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> GetLocationShareRecordsUseCase:
-    repo = LocationShareRecordRepository(session)
-    return GetLocationShareRecordsUseCase(repo)
-
-
-async def get_sms_service() -> SmsService:
-    return SmsService(
-        gateway=SmsTwilioGateway(
-            TwilioClient(
-                settings.sms.twilio.account_sid, settings.sms.twilio.auth_token
+    @staticmethod
+    async def _sms_service() -> SmsService:
+        return SmsService(
+            gateway=SmsTwilioGateway(
+                TwilioClient(
+                    settings.sms.twilio.account_sid, settings.sms.twilio.auth_token
+                )
             )
         )
-    )
+
+    async def create_location_share_request_usecase(
+        self,
+        session: AsyncSession = Depends(db_helper.session_getter),
+    ) -> CreateLocationShareRequestUseCase:
+        repo = LocationShareRequestRepository(session)
+        return CreateLocationShareRequestUseCase(
+            repository=repo,
+            sms_service=await self._sms_service(),
+            wa_service=await self.whatsapp_service(),
+        )
+
+    @staticmethod
+    async def _whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
+        client = await client_provider.get_client(
+            base_url=settings.whatsapp.graph_api.url
+        )
+        return WhatsAppGraphApiGateway(
+            client=client,
+            phone_number_id=settings.whatsapp.graph_api.phone_number_id,
+            access_token=settings.whatsapp.graph_api.access_token,
+        )
+
+    async def whatsapp_service(self) -> WhatsAppService:
+        return WhatsAppService(gateway=await self._whatsapp_graph_api_gateway())
+
+    @staticmethod
+    async def photo_share_upload_usecase(
+        session: AsyncSession = Depends(db_helper.session_getter),
+    ) -> UploadPhotoShareUseCase:
+        return UploadPhotoShareUseCase(
+            repo=PhotoShareRepository(session),
+            gateway=LocalFileStorageGateway(),
+            ws_gateway=dependency.photo_ws_gateway(),
+        )
+
+    @staticmethod
+    async def get_photo_share_usecase(
+        session: AsyncSession = Depends(db_helper.session_getter),
+    ) -> GetPhotoShareUseCase:
+        return GetPhotoShareUseCase(repo=PhotoShareRepository(session))
 
 
-async def get_whatsapp_graph_api_gateway() -> WhatsAppGraphApiGateway:
-    client = await client_provider.get_client(base_url=settings.whatsapp.graph_api.url)
-    return WhatsAppGraphApiGateway(
-        client=client,
-        phone_number_id=settings.whatsapp.graph_api.phone_number_id,
-        access_token=settings.whatsapp.graph_api.access_token,
-    )
-
-
-async def get_whatsapp_service() -> WhatsAppService:
-    return WhatsAppService(gateway=await get_whatsapp_graph_api_gateway())
-
-
-async def get_create_location_share_request_usecase(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> CreateLocationShareRequestUseCase:
-    repo = LocationShareRequestRepository(session)
-    return CreateLocationShareRequestUseCase(
-        repository=repo,
-        sms_service=await get_sms_service(),
-        wa_service=await get_whatsapp_service(),
-    )
-
-
-async def get_photo_share_upload_usecase(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> UploadPhotoShareUseCase:
-    return UploadPhotoShareUseCase(
-        repo=PhotoShareRepository(session),
-        gateway=LocalFileStorageGateway(),
-        ws_gateway=get_photo_ws_gateway(),
-    )
-
-
-async def get_get_photo_share_usecase(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> GetPhotoShareUseCase:
-    return GetPhotoShareUseCase(repo=PhotoShareRepository(session))
+dependency = Dependency()

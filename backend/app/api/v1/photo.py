@@ -1,10 +1,6 @@
 from fastapi import APIRouter, UploadFile, Depends, WebSocket, WebSocketDisconnect
 
-from api.dependencies import (
-    get_photo_share_upload_usecase,
-    get_get_photo_share_usecase,
-    get_photo_ws_gateway,
-)
+from api.dependencies import dependency
 from core.config import settings
 from core.utils import get_photo_share_url
 from gateway.websocket import PhotoWebSocketGateway
@@ -19,7 +15,7 @@ router = APIRouter(prefix=settings.api_prefix.photo_shares)
 async def photo_updates_ws(
     websocket: WebSocket,
     request_id: int,
-    gateway: PhotoWebSocketGateway = Depends(get_photo_ws_gateway),
+    gateway: PhotoWebSocketGateway = Depends(dependency.photo_ws_gateway),
 ) -> None:
 
     await gateway.connect(request_id, websocket)
@@ -38,7 +34,7 @@ async def photo_updates_ws(
 async def upload_photo_share(
     photo: UploadFile,
     request_id: int,
-    usecase: UploadPhotoShareUseCase = Depends(get_photo_share_upload_usecase),
+    usecase: UploadPhotoShareUseCase = Depends(dependency.photo_share_upload_usecase),
 ) -> PhotoUploadSchema:
     file = File(
         filename=photo.filename,
@@ -56,7 +52,7 @@ async def upload_photo_share(
 )
 async def get_photo_shares(
     request_id: int,
-    usecase: GetPhotoShareUseCase = Depends(get_get_photo_share_usecase),
+    usecase: GetPhotoShareUseCase = Depends(dependency.get_photo_share_usecase),
 ) -> PhotoShareListSchema:
     result = await usecase.execute(request_id=request_id)
     items = [
