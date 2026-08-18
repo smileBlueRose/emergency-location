@@ -10,6 +10,11 @@ import { photoApi } from '../../services/api/photo';
 import { connectLocationSocket } from '../../services/websocket/locationSocket';
 import { connectPhotoSocket } from '../../services/websocket/photoSocket';
 import { resolveMediaUrl } from '../../services/media';
+import {
+  ExternalLinkIcon,
+  TelegramIcon,
+  WhatsAppIcon,
+} from '../../components/ui/icons';
 
 import type { Photo } from '../../types';
 
@@ -165,6 +170,16 @@ export function OperatorRequestPage() {
                 location?.longitude ?? null
               }
             />
+
+            {loading && !location && (
+              <div className="operator-request__map-loading">
+                <span
+                  className="operator-request__spinner"
+                  aria-hidden="true"
+                />
+                Loading...
+              </div>
+            )}
           </div>
 
           <div className="operator-request__share">
@@ -179,6 +194,7 @@ export function OperatorRequestPage() {
                 rel="noreferrer"
                 className="share-button share-button--telegram"
               >
+                <TelegramIcon className="share-button__icon" />
                 Telegram
               </a>
 
@@ -188,6 +204,7 @@ export function OperatorRequestPage() {
                 rel="noreferrer"
                 className="share-button share-button--whatsapp"
               >
+                <WhatsAppIcon className="share-button__icon" />
                 WhatsApp
               </a>
 
@@ -200,6 +217,7 @@ export function OperatorRequestPage() {
                   );
                 }}
               >
+                <ExternalLinkIcon className="share-button__icon" />
                 {t.operator.copyLink}
               </button>
             </div>

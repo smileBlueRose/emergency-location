@@ -1,134 +1,260 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
 import { photoApi } from '../../services/api/photo';
 import { useLocale } from '../../app/providers/LocaleProvider';
+import { CameraPlusIcon, FileWarningIcon } from '../ui/icons';
 
 interface PhotoUploaderProps {
   requestId: number;
 }
 
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type PhotoStatus = 'pending' | 'uploading' | 'success' | 'error';
+
+interface QueuedPhoto {
+  id: string;
+  file: File;
+  previewUrl: string;
+  status: PhotoStatus;
+}
+
+const MAX_PHOTOS = 20;
+const PLACEHOLDER_TONES = ['blue', 'green', 'yellow', 'pink'] as const;
 
 export function PhotoUploader({
   requestId,
 }: PhotoUploaderProps) {
   const { t } = useLocale();
 
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [uploadedPhotoUrl, setUploadedPhotoUrl] =
-    useState<string | null>(null);
-  const [status, setStatus] = useState<UploadStatus>('idle');
+  const [photos, setPhotos] = useState<QueuedPhoto[]>([]);
+  const [formatError, setFormatError] = useState(false);
+  const [countError, setCountError] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
-    }
-
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-
-  function handleFileChange(
+  function handleFilesSelected(
     event: React.ChangeEvent<HTMLInputElement>,
   ) {
-    const selectedFile = event.target.files?.[0];
+    const selected = Array.from(event.target.files ?? []);
+    event.target.value = '';
 
-    if (!selectedFile) {
+    if (selected.length === 0) {
       return;
     }
 
-    setFile(selectedFile);
-    setUploadedPhotoUrl(null);
-    setStatus('idle');
-  }
+    setFormatError(false);
+    setCountError(false);
 
-  async function handleUpload() {
-    if (!file) {
-      return;
+    const imageFiles = selected.filter((file) =>
+      file.type.startsWith('image/'),
+    );
+
+    if (imageFiles.length < selected.length) {
+      setFormatError(true);
     }
 
-    try {
-      setStatus('uploading');
+    setPhotos((current) => {
+      const availableSlots = Math.max(
+        MAX_PHOTOS - current.length,
+        0,
+      );
 
-      const uploadedPhoto = await photoApi.upload(
-        requestId,
+      if (imageFiles.length > availableSlots) {
+        setCountError(true);
+      }
+
+      const accepted = imageFiles.slice(0, availableSlots);
+
+      const queued: QueuedPhoto[] = accepted.map((file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+          .toString(36)
+          .slice(2)}`,
         file,
-      );
+        previewUrl: URL.createObjectURL(file),
+        status: 'pending',
+      }));
 
-      console.log(
-        'UPLOADED PHOTO URL:',
-        uploadedPhoto.url,
-      );
-
-      setUploadedPhotoUrl(uploadedPhoto.url);
-      setStatus('success');
-    } catch (error) {
-      console.error(
-        'Failed to upload photo:',
-        error,
-      );
-      setStatus('error');
-    }
+      return [...current, ...queued];
+    });
   }
+
+  function removePhoto(id: string) {
+    setPhotos((current) => {
+      const target = current.find((photo) => photo.id === id);
+
+      if (target) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+
+      return current.filter((photo) => photo.id !== id);
+    });
+  }
+
+  async function handleSendAll() {
+    const pending = photos.filter(
+      (photo) => photo.status !== 'success',
+    );
+
+    if (pending.length === 0) {
+      return;
+    }
+
+    setSending(true);
+
+    for (const photo of pending) {
+      setPhotos((current) =>
+        current.map((item) =>
+          item.id === photo.id
+            ? { ...item, status: 'uploading' }
+            : item,
+        ),
+      );
+
+      try {
+        await photoApi.upload(requestId, photo.file);
+
+        setPhotos((current) =>
+          current.map((item) =>
+            item.id === photo.id
+              ? { ...item, status: 'success' }
+              : item,
+          ),
+        );
+      } catch (error) {
+        console.error(
+          'Failed to upload photo:',
+          error,
+        );
+
+        setPhotos((current) =>
+          current.map((item) =>
+            item.id === photo.id
+              ? { ...item, status: 'error' }
+              : item,
+          ),
+        );
+      }
+    }
+
+    setSending(false);
+  }
+
+  const hasPendingUploads = photos.some(
+    (photo) => photo.status !== 'success',
+  );
+
+  const hasErrors = photos.some(
+    (photo) => photo.status === 'error',
+  );
 
   return (
     <section className="photo-uploader">
-    <input
-      id="photo-upload"
-      type="file"
-      accept="image/*"
-      capture="environment"
-      onChange={handleFileChange}
-      className="photo-uploader__input"
-    />
+      <input
+        id="photo-upload"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFilesSelected}
+        className="photo-uploader__input"
+      />
 
-    <label
-      htmlFor="photo-upload"
-      className="photo-uploader__button"
-    >
-      {t.photo.select}
-    </label>
+      <div className="photo-uploader__grid">
+        <label
+          htmlFor="photo-upload"
+          className="photo-uploader__tile photo-uploader__tile--add"
+        >
+          <CameraPlusIcon className="photo-uploader__add-icon" />
+        </label>
 
-      {previewUrl && (
-        <div className="photo-uploader__preview">
-          <img
-            src={previewUrl}
-            alt={t.photo.preview}
-          />
-
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={status === 'uploading'}
+        {photos.map((photo, index) => (
+          <div
+            key={photo.id}
+            className="photo-uploader__tile"
+            data-tone={
+              PLACEHOLDER_TONES[
+                index % PLACEHOLDER_TONES.length
+              ]
+            }
+            data-status={photo.status}
           >
-            {status === 'uploading'
-              ? t.photo.sending
-              : t.photo.send}
-          </button>
+            <img
+              src={photo.previewUrl}
+              alt={t.photo.preview}
+            />
+
+            {photo.status === 'success' && (
+              <span className="photo-uploader__tile-badge">
+                ✓
+              </span>
+            )}
+
+            {photo.status !== 'uploading' && (
+              <button
+                type="button"
+                className="photo-uploader__remove"
+                aria-label={t.photo.remove}
+                onClick={() => removePhoto(photo.id)}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {formatError && (
+        <div className="photo-uploader__notice">
+          <FileWarningIcon className="photo-uploader__notice-icon" />
+
+          <div>
+            <p>{t.photo.invalidFile}</p>
+            <p className="photo-uploader__notice-hint">
+              {t.photo.supportedFormats}
+            </p>
+          </div>
         </div>
       )}
 
-      {status === 'success' && (
-        <p>{t.photo.success}</p>
-      )}
-
-      {status === 'error' && (
-        <p>{t.photo.error}</p>
-      )}
-
-      {uploadedPhotoUrl && (
-        <div className="photo-uploader__uploaded">
-          <p>{t.photo.uploaded}</p>
-
-          <img
-            src={uploadedPhotoUrl}
-            alt={t.photo.uploaded}
-          />
+      {countError && (
+        <div className="photo-uploader__notice">
+          <FileWarningIcon className="photo-uploader__notice-icon" />
+          <p>{t.photo.tooMany}</p>
         </div>
       )}
+
+      <label
+        htmlFor="photo-upload"
+        className="photo-uploader__button"
+      >
+        {t.photo.attach}
+      </label>
+
+      <button
+        type="button"
+        className="photo-uploader__send"
+        onClick={handleSendAll}
+        disabled={
+          photos.length === 0 ||
+          !hasPendingUploads ||
+          sending
+        }
+      >
+        {sending
+          ? t.photo.sending
+          : t.photo.send}
+      </button>
+
+      {hasErrors && (
+        <p className="photo-uploader__status photo-uploader__status--error">
+          {t.photo.error}
+        </p>
+      )}
+
+      {photos.length > 0 &&
+        !hasPendingUploads &&
+        !sending && (
+          <p className="photo-uploader__status">
+            {t.photo.success}
+          </p>
+        )}
     </section>
   );
 }

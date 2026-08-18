@@ -4,6 +4,11 @@ import L from 'leaflet';
 interface MapPanelProps {
   latitude: number | null;
   longitude: number | null;
+  draggableMarker?: boolean;
+  onMarkerDragEnd?: (
+    latitude: number,
+    longitude: number,
+  ) => void;
 }
 
 const markerIcon = L.icon({
@@ -33,6 +38,8 @@ function MapCenter({
 export function MapPanel({
   latitude,
   longitude,
+  draggableMarker = false,
+  onMarkerDragEnd,
 }: MapPanelProps) {
   const hasLocation =
     latitude !== null && longitude !== null;
@@ -66,6 +73,18 @@ export function MapPanel({
             <Marker
               position={[latitude, longitude]}
               icon={markerIcon}
+              draggable={draggableMarker}
+              eventHandlers={
+                onMarkerDragEnd
+                  ? {
+                      dragend: (event) => {
+                        const marker = event.target as L.Marker;
+                        const { lat, lng } = marker.getLatLng();
+                        onMarkerDragEnd(lat, lng);
+                      },
+                    }
+                  : undefined
+              }
             />
           </>
         )}
