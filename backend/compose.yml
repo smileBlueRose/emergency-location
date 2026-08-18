@@ -15,7 +15,6 @@ services:
 
   backend:
     image: docker.io/smilekundev/emergency-location:latest
-    user: "1001:1001"
     container_name: backend
     ports:
       - "127.0.0.1:8080:8080"
@@ -25,10 +24,6 @@ services:
       - env/.env.prod
     secrets:
       - source: db_password
-        target: db_password
-        uid: "1001"
-        gid: "1001"
-        mode: 0400
     volumes:
       - /var/app/media:/backend/media
       - /var/app/logs:/backend/logs
