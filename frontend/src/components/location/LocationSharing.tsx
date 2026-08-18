@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { locationApi } from '../../services/api/location';
 import { getCurrentPosition } from '../../services/geolocation';
 import { create2GisGeoUrl } from '../../services/maps';
@@ -20,6 +20,11 @@ export type LocationStatus =
   | 'success'
   | 'error';
 
+// Refreshing on a timer (instead of navigator.geolocation.watchPosition)
+// lets the device power down the GPS radio between fixes, which is
+// noticeably lighter on battery than keeping it continuously active.
+const LOCATION_REFRESH_INTERVAL_MS = 20_000;
+
 export function LocationSharing({
   requestId,
   onLocationReceived,
@@ -32,6 +37,9 @@ export function LocationSharing({
 
   const [mapUrl, setMapUrl] =
     useState<string | null>(null);
+
+  const onLocationReceivedRef = useRef(onLocationReceived);
+  onLocationReceivedRef.current = onLocationReceived;
 
   function updateStatus(nextStatus: LocationStatus) {
     setStatus(nextStatus);
@@ -72,6 +80,43 @@ export function LocationSharing({
       updateStatus('error');
     }
   }
+
+  useEffect(() => {
+    if (status !== 'success') {
+      return;
+    }
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const { latitude, longitude } =
+          await getCurrentPosition({
+            maximumAge: 5_000,
+          });
+
+        onLocationReceivedRef.current(latitude, longitude);
+
+        setMapUrl(
+          create2GisGeoUrl(
+            latitude,
+            longitude,
+          ),
+        );
+
+        await locationApi.submitLocation(
+          requestId,
+          latitude,
+          longitude,
+        );
+      } catch (error) {
+        console.error(
+          'Failed to refresh location:',
+          error,
+        );
+      }
+    }, LOCATION_REFRESH_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [status, requestId]);
 
   return (
     <section className="location-sharing">

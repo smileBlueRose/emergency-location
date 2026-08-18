@@ -66,14 +66,7 @@ export function OperatorRequestPage() {
           });
         }
 
-        setPhotos(
-          photoList.items.map((photo) => ({
-            ...photo,
-            url: resolveMediaUrl(
-              photo.url,
-            ),
-          })),
-        );
+        setPhotos(photoList.items);
       } catch (error) {
         console.error(
           'Failed to load operator request:',

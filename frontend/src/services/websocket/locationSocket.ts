@@ -1,3 +1,5 @@
+import { connectReconnectingSocket } from './reconnectingSocket';
+
 export interface LocationSocketMessage {
   id: number;
   latitude: number;
@@ -20,51 +22,9 @@ export function connectLocationSocket(
     location: LocationSocketMessage,
   ) => void,
 ) {
-  const socket = new WebSocket(
-    `${getWebSocketBaseUrl()}/api/v1/location/location-shares/ws/${requestId}`,
-  );
-
-  socket.onopen = () => {
-    console.log(
-      `Location WebSocket connected for request ${requestId}`,
-    );
-  };
-
-  socket.onmessage = (event) => {
-    try {
-      const message =
-        JSON.parse(
-          event.data,
-        ) as LocationSocketMessage;
-
-      console.log(
-        'Location WebSocket message:',
-        message,
-      );
-
-      onLocation(message);
-    } catch (error) {
-      console.error(
-        'Failed to parse location WebSocket message:',
-        error,
-      );
-    }
-  };
-
-  socket.onerror = (error) => {
-    console.error(
-      'Location WebSocket error:',
-      error,
-    );
-  };
-
-  socket.onclose = () => {
-    console.log(
-      `Location WebSocket closed for request ${requestId}`,
-    );
-  };
-
-  return () => {
-    socket.close();
-  };
+  return connectReconnectingSocket<LocationSocketMessage>({
+    url: `${getWebSocketBaseUrl()}/api/v1/location/location-shares/ws/${requestId}`,
+    label: 'Location',
+    onMessage: onLocation,
+  });
 }
