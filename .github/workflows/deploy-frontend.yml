@@ -29,7 +29,7 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         env:
-          VITE_API_URL: https://${{ HOST }}
+          VITE_API_URL: https://${{ vars.HOST }} # или ${{ secrets.HOST }}
         run: npm run build
 
       - name: Prepare frontend directory
@@ -52,6 +52,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH }}
           passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
           port: 22
-          source: "frontend/dist/*"
+          source: "frontend/dist/**"
           target: "/app/frontend"
           strip_components: 2
