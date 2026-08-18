@@ -52,4 +52,5 @@ jobs:
             echo ''
             podman rm -f ${{ vars.BACKEND_CNT_NAME }}
             podman rmi ${{ vars.BACKEND_IMAGE }}
+            podman pull ${{ vars.BACKEND_IMAGE }}
             podman-compose --env-file=env/.env up -d
