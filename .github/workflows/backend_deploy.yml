@@ -16,7 +16,7 @@ jobs:
         name: Build image
         run: |
           cd backend
-          podman build -t emergency-location .
+          podman build --build-arg APP_UID=$(id -u) --build-arg APP_GID=$(id -g) -t emergency-location .
           podman tag emergency-location docker.io/${{ vars.DOCKERHUB_USERNAME }}/emergency-location:latest
       -
         name: Login to Docker Hub
