@@ -2,6 +2,7 @@ from typing import Protocol
 from schemas.sms import SmsResult
 from core.enums import SmsStatus
 from schemas.whatsapp import WhatsAppTemplate, WhatsAppSendResult
+from fastapi import WebSocket
 
 
 class SmsGateway(Protocol):
@@ -19,3 +20,11 @@ class WhatsAppGateway(Protocol):
 class FileStorageGateway(Protocol):
     @staticmethod
     def save_photo_share(content: bytes, request_id: int, mimetype: str) -> str: ...
+
+
+class WebSocketGateway[T, V](Protocol):
+    async def connect(self, key: T, websocket: WebSocket) -> None: ...
+
+    def disconnect(self, key: T, websocket: WebSocket) -> None: ...
+
+    async def broadcast(self, key: T, data: dict[str, V]) -> None: ...
