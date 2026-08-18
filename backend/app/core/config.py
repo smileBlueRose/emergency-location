@@ -10,6 +10,10 @@ MEDIA_ROOT = Path(PROJECT_DIR / "media")
 MEDIA_ROOT.mkdir(exist_ok=True)
 
 
+class Server(BaseModel):
+    domain: str
+
+
 class RunConfig(BaseModel):
     host: str
     port: int
@@ -105,6 +109,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_nested_delimiter="__",
     )
+    server: Server
     run: RunConfig
     db: DatabaseConfig
     phone: PhoneConfig = PhoneConfig()
@@ -116,5 +121,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()  # type: ignore
-
-BASE_URL = f"http://{settings.run.host}:{settings.run.port}"

@@ -56,7 +56,7 @@ class SmsKzGateway(SmsGateway):
         )
         result = SmsResult(
             message_id=str(response.json()["id"]),
-            status=self.map_smsc_status(response.json()["status"]),
+            status=self.map_smsc_status(response.json().get("status", "N/A")),
         )
         return result
 

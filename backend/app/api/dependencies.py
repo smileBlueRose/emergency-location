@@ -22,6 +22,7 @@ from usecases.location import (
 from core.config import settings
 from twilio.rest import Client as TwilioClient
 from usecases.photo import UploadPhotoShareUseCase, GetPhotoShareUseCase
+from twilio.http.async_http_client import AsyncTwilioHttpClient
 
 
 class Dependency:
@@ -64,7 +65,9 @@ class Dependency:
         return SmsService(
             gateway=SmsTwilioGateway(
                 TwilioClient(
-                    settings.sms.twilio.account_sid, settings.sms.twilio.auth_token
+                    settings.sms.twilio.account_sid,
+                    settings.sms.twilio.auth_token,
+                    http_client=AsyncTwilioHttpClient(),
                 )
             )
         )
