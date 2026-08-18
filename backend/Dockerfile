@@ -12,8 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 WORKDIR /backend
 COPY --from=tini /sbin/tini /sbin/tini
-COPY --from=builder --chown=appuser:appuser /backend/.venv ./.venv
-COPY --chown=appuser:appuser . ./
+COPY --from=builder /backend/.venv ./.venv
+COPY . ./
 
 COPY . ./
 EXPOSE 8080
