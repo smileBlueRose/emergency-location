@@ -24,10 +24,15 @@ services:
       - env/.env
       - env/.env.prod
     secrets:
-      - db_password
+      - source: db_password
+        target: db_password
+        uid: "1001"
+        gid: "1001"
+        mode: 0400
     volumes:
       - /var/app/media:/backend/media
       - /var/app/logs:/backend/logs
+
 secrets:
   db_password:
     file: secrets/db_password.txt
