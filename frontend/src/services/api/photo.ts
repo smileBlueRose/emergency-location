@@ -14,7 +14,10 @@ function normalizeMediaUrl(url: string): string {
 }
 
 export const photoApi = {
-  async upload(requestId: number, file: File): Promise<Photo> {
+  async upload(
+    requestId: number,
+    file: File,
+  ): Promise<Photo> {
     const formData = new FormData();
     formData.append('photo', file);
 
@@ -34,14 +37,11 @@ export const photoApi = {
     };
   },
 
-  async getAll(requestId: number): Promise<PhotoList> {
+  async getAll(
+    requestId: number,
+  ): Promise<PhotoList> {
     const response = await apiClient.get<PhotoList>(
-      PHOTO_SHARES_PATH,
-      {
-        params: {
-          request_id: requestId,
-        },
-      },
+      `${PHOTO_SHARES_PATH}/${requestId}/photos`,
     );
 
     return {

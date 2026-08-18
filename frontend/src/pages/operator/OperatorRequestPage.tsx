@@ -7,13 +7,15 @@ import { MapPanel } from '../../components/map/MapPanel';
 import { useLocale } from '../../app/providers/LocaleProvider';
 import { locationApi } from '../../services/api/location';
 import { photoApi } from '../../services/api/photo';
-import type {
-  LocationShareRecord,
-  Photo,
-} from '../../types';
+import { connectLocationSocket } from '../../services/websocket/locationSocket';
+import { connectPhotoSocket } from '../../services/websocket/photoSocket';
+import { resolveMediaUrl } from '../../services/media';
+
+import type { Photo } from '../../types';
 
 export function OperatorRequestPage() {
   const { t } = useLocale();
+
   const { requestId } = useParams<{
     requestId: string;
   }>();
@@ -21,11 +23,16 @@ export function OperatorRequestPage() {
   const numericRequestId = Number(requestId);
 
   const [location, setLocation] =
-    useState<LocationShareRecord | null>(null);
+    useState<{
+      latitude: number;
+      longitude: number;
+    } | null>(null);
 
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] =
+    useState<Photo[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     if (!Number.isInteger(numericRequestId)) {
@@ -47,8 +54,21 @@ export function OperatorRequestPage() {
           ),
         ]);
 
-        setLocation(latestLocation);
-        setPhotos(photoList.items);
+        if (latestLocation) {
+          setLocation({
+            latitude: latestLocation.latitude,
+            longitude: latestLocation.longitude,
+          });
+        }
+
+        setPhotos(
+          photoList.items.map((photo) => ({
+            ...photo,
+            url: resolveMediaUrl(
+              photo.url,
+            ),
+          })),
+        );
       } catch (error) {
         console.error(
           'Failed to load operator request:',
@@ -62,7 +82,59 @@ export function OperatorRequestPage() {
     void loadRequest();
   }, [numericRequestId]);
 
-  const locationReceived = location !== null;
+  useEffect(() => {
+    if (!Number.isInteger(numericRequestId)) {
+      return;
+    }
+
+    return connectLocationSocket(
+      numericRequestId,
+      (message) => {
+        setLocation({
+          latitude: message.latitude,
+          longitude: message.longitude,
+        });
+      },
+    );
+  }, [numericRequestId]);
+
+  useEffect(() => {
+    if (!Number.isInteger(numericRequestId)) {
+      return;
+    }
+
+    return connectPhotoSocket(
+      numericRequestId,
+      (message) => {
+        const newPhoto: Photo = {
+          id: message.id,
+          url: resolveMediaUrl(
+            message.url,
+          ),
+        };
+
+        setPhotos((currentPhotos) => {
+          const alreadyExists =
+            currentPhotos.some(
+              (photo) =>
+                photo.id === newPhoto.id,
+            );
+
+          if (alreadyExists) {
+            return currentPhotos;
+          }
+
+          return [
+            ...currentPhotos,
+            newPhoto,
+          ];
+        });
+      },
+    );
+  }, [numericRequestId]);
+
+  const locationReceived =
+    location !== null;
 
   return (
     <div className="page operator-request-page">
@@ -145,17 +217,23 @@ export function OperatorRequestPage() {
             </div>
           ) : (
             <div className="operator-request__photos">
-            {photos.map((photo) => (
+              {photos.map((photo) => (
                 <img
-                key={photo.id}
-                src={photo.url}
-                alt={t.operator.photos}
-                className="operator-request__photo"
-                onError={(event) => {
-                    event.currentTarget.style.display = 'none';
-                }}
+                  key={photo.id}
+                  src={photo.url}
+                  alt={t.operator.photos}
+                  className="operator-request__photo"
+                  onError={(event) => {
+                    console.error(
+                      'Failed to load photo:',
+                      photo.url,
+                    );
+
+                    event.currentTarget.style.display =
+                      'none';
+                  }}
                 />
-            ))}
+              ))}
             </div>
           )}
         </aside>
