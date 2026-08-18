@@ -10,11 +10,6 @@ RUN uv sync --locked --no-dev --no-install-project
 FROM python:3.13-alpine AS runner
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-ARG APP_UID
-ARG APP_GID
-RUN addgroup -g $APP_GID appuser && \
-    adduser -D -u $APP_UID -G appuser appuser
-
 WORKDIR /backend
 COPY --from=tini /sbin/tini /sbin/tini
 COPY --from=builder --chown=appuser:appuser /backend/.venv ./.venv
