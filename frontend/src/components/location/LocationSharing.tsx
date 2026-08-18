@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { locationApi } from '../../services/api/location';
 import { getCurrentPosition } from '../../services/geolocation';
 import { create2GisGeoUrl } from '../../services/maps';
@@ -6,11 +6,15 @@ import { useLocale } from '../../app/providers/LocaleProvider';
 
 interface LocationSharingProps {
   requestId: number;
+  autoTracking: boolean;
   onLocationReceived: (
     latitude: number,
     longitude: number,
   ) => void;
   onStatusChange: (status: LocationStatus) => void;
+  onAutoTrackingChange: (
+    autoTracking: boolean,
+  ) => void;
 }
 
 export type LocationStatus =
@@ -27,8 +31,10 @@ const LOCATION_REFRESH_INTERVAL_MS = 20_000;
 
 export function LocationSharing({
   requestId,
+  autoTracking,
   onLocationReceived,
   onStatusChange,
+  onAutoTrackingChange,
 }: LocationSharingProps) {
   const { t } = useLocale();
 
@@ -46,6 +52,28 @@ export function LocationSharing({
     onStatusChange(nextStatus);
   }
 
+  const refreshLocation = useCallback(async () => {
+    const { latitude, longitude } =
+      await getCurrentPosition({
+        maximumAge: 5_000,
+      });
+
+    onLocationReceivedRef.current(latitude, longitude);
+
+    setMapUrl(
+      create2GisGeoUrl(
+        latitude,
+        longitude,
+      ),
+    );
+
+    await locationApi.submitLocation(
+      requestId,
+      latitude,
+      longitude,
+    );
+  }, [requestId]);
+
   async function handleShareLocation() {
     try {
       updateStatus('requesting');
@@ -53,7 +81,7 @@ export function LocationSharing({
       const { latitude, longitude } =
         await getCurrentPosition();
 
-      onLocationReceived(latitude, longitude);
+      onLocationReceivedRef.current(latitude, longitude);
 
       setMapUrl(
         create2GisGeoUrl(
@@ -81,42 +109,37 @@ export function LocationSharing({
     }
   }
 
+  // A hand-placed marker wins over the automatic fix, so the timer is
+  // only armed while the user keeps automatic tracking switched on.
   useEffect(() => {
-    if (status !== 'success') {
+    if (status !== 'success' || !autoTracking) {
       return;
     }
 
-    const intervalId = window.setInterval(async () => {
-      try {
-        const { latitude, longitude } =
-          await getCurrentPosition({
-            maximumAge: 5_000,
-          });
-
-        onLocationReceivedRef.current(latitude, longitude);
-
-        setMapUrl(
-          create2GisGeoUrl(
-            latitude,
-            longitude,
-          ),
-        );
-
-        await locationApi.submitLocation(
-          requestId,
-          latitude,
-          longitude,
-        );
-      } catch (error) {
+    const intervalId = window.setInterval(() => {
+      refreshLocation().catch((error) => {
         console.error(
           'Failed to refresh location:',
           error,
         );
-      }
+      });
     }, LOCATION_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(intervalId);
-  }, [status, requestId]);
+  }, [status, autoTracking, refreshLocation]);
+
+  async function handleEnableAutoTracking() {
+    onAutoTrackingChange(true);
+
+    try {
+      await refreshLocation();
+    } catch (error) {
+      console.error(
+        'Failed to refresh location:',
+        error,
+      );
+    }
+  }
 
   return (
     <section className="location-sharing">
@@ -143,6 +166,16 @@ export function LocationSharing({
         {status === 'error' &&
           t.location.error}
       </button>
+
+      {status === 'success' && !autoTracking && (
+        <button
+          type="button"
+          className="location-sharing__auto"
+          onClick={handleEnableAutoTracking}
+        >
+          {t.location.enableAutoTracking}
+        </button>
+      )}
 
       {mapUrl && status === 'success' && (
         <a

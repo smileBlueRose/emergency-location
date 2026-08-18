@@ -9,6 +9,9 @@ export const translations = {
       shared: 'Вы делитесь геолокацией с оператором',
       open2gis: 'Открыть местоположение в 2GIS',
       dragHint: 'Перетащите метку, если точка указана неверно',
+      manualPin:
+        'Точка указана вручную — автоматическое обновление выключено',
+      enableAutoTracking: 'Определять точку автоматически',
     },
 
     photo: {
@@ -61,6 +64,9 @@ export const translations = {
       shared: 'Сіз операторға геолокацияңызды жіберіп жатырсыз',
       open2gis: '2GIS-та орналасқан жерді ашу',
       dragHint: 'Нүкте дұрыс көрсетілмесе, белгіні сүйреңіз',
+      manualPin:
+        'Нүкте қолмен көрсетілді — автоматты жаңарту өшірілген',
+      enableAutoTracking: 'Нүктені автоматты түрде анықтау',
     },
 
     photo: {
@@ -113,6 +119,9 @@ export const translations = {
       shared: 'You are sharing your location with the operator',
       open2gis: 'Open location in 2GIS',
       dragHint: 'Drag the marker if the point is incorrect',
+      manualPin:
+        'Point set manually — automatic updates are off',
+      enableAutoTracking: 'Detect location automatically',
     },
 
     photo: {

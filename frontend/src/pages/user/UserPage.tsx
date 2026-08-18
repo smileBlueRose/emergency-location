@@ -30,12 +30,19 @@ export function UserPage() {
   const [locationStatus, setLocationStatus] =
     useState<LocationStatus>('idle');
 
+  const [autoTracking, setAutoTracking] =
+    useState(true);
+
   function handleMarkerDragEnd(
     lat: number,
     lon: number,
   ) {
     setLatitude(lat);
     setLongitude(lon);
+
+    // A marker the user placed by hand takes priority: automatic
+    // refreshes stop until they explicitly ask for them again.
+    setAutoTracking(false);
 
     if (Number.isInteger(requestId)) {
       void locationApi.submitLocation(
@@ -101,17 +108,21 @@ export function UserPage() {
 
         {locationStatus === 'success' && (
           <p className="user-page__drag-hint">
-            {t.location.dragHint}
+            {autoTracking
+              ? t.location.dragHint
+              : t.location.manualPin}
           </p>
         )}
 
         <LocationSharing
           requestId={requestId}
+          autoTracking={autoTracking}
           onLocationReceived={(lat, lon) => {
             setLatitude(lat);
             setLongitude(lon);
           }}
           onStatusChange={setLocationStatus}
+          onAutoTrackingChange={setAutoTracking}
         />
 
         <PhotoUploader

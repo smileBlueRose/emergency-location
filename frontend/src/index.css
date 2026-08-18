@@ -321,6 +321,16 @@ select {
   cursor: default;
 }
 
+.location-sharing .location-sharing__auto {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #d0d0d0;
+}
+
+.location-sharing .location-sharing__auto:hover {
+  border-color: #1f1f1f;
+}
+
 .location-sharing a {
   color: #1645c7;
   font-size: 15px;
