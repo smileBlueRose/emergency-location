@@ -10,6 +10,8 @@ import {
 } from '../../components/location/LocationSharing';
 import { PhotoUploader } from '../../components/photos/PhotoUploader';
 import { useLocale } from '../../app/providers/LocaleProvider';
+import { locationApi } from '../../services/api/location';
+import { BroadcastIcon } from '../../components/ui/icons';
 
 export function UserPage() {
   const { t } = useLocale();
@@ -27,6 +29,22 @@ export function UserPage() {
 
   const [locationStatus, setLocationStatus] =
     useState<LocationStatus>('idle');
+
+  function handleMarkerDragEnd(
+    lat: number,
+    lon: number,
+  ) {
+    setLatitude(lat);
+    setLongitude(lon);
+
+    if (Number.isInteger(requestId)) {
+      void locationApi.submitLocation(
+        requestId,
+        lat,
+        lon,
+      );
+    }
+  }
 
   if (!Number.isInteger(requestId)) {
     return (
@@ -51,6 +69,7 @@ export function UserPage() {
       <main className="user-page">
         {locationStatus === 'success' && (
           <section className="user-page__status">
+            <BroadcastIcon className="user-page__status-icon" />
             {t.location.shared}
           </section>
         )}
@@ -76,7 +95,15 @@ export function UserPage() {
         <MapPanel
           latitude={latitude}
           longitude={longitude}
+          draggableMarker={locationStatus === 'success'}
+          onMarkerDragEnd={handleMarkerDragEnd}
         />
+
+        {locationStatus === 'success' && (
+          <p className="user-page__drag-hint">
+            {t.location.dragHint}
+          </p>
+        )}
 
         <LocationSharing
           requestId={requestId}

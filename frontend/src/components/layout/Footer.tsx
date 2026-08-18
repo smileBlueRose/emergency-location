@@ -1,3 +1,5 @@
+import { GithubIcon, MailIcon } from '../ui/icons';
+
 export function Footer() {
   return (
     <footer className="app-footer">
@@ -17,10 +19,12 @@ export function Footer() {
           target="_blank"
           rel="noreferrer"
         >
+          <GithubIcon className="app-footer__link-icon" />
           GitHub
         </a>
 
         <a href="#contacts">
+          <MailIcon className="app-footer__link-icon" />
           Контакты
         </a>
 

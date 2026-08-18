@@ -1,27 +1,18 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Header } from '../../components/layout/Header';
 import { Footer } from '../../components/layout/Footer';
 import { MapPanel } from '../../components/map/MapPanel';
-import { PhotoPanel } from '../../components/photos/PhotoPanel';
 import { RequestForm } from '../../components/request/RequestForm';
+import { PinIcon } from '../../components/ui/icons';
 import { useLocale } from '../../app/providers/LocaleProvider';
 
 export function OperatorPage() {
   const { t } = useLocale();
+  const navigate = useNavigate();
 
-  const [requestId, setRequestId] =
-    useState<number | null>(null);
-
-  const [phone, setPhone] =
-    useState<string | null>(null);
-
-  function handleRequestCreated(
-    id: number,
-    requestPhone: string,
-  ) {
-    setRequestId(id);
-    setPhone(requestPhone);
+  function handleRequestCreated(id: number) {
+    navigate(`/operator/${id}`);
   }
 
   return (
@@ -29,44 +20,27 @@ export function OperatorPage() {
       <Header />
 
       <main className="operator-page">
-        {!requestId ? (
-          <section className="operator-request-create">
-            <h1>
-              {t.request.create}
+        <section className="request-hero">
+          <div className="request-hero__map" aria-hidden="true">
+            <MapPanel latitude={null} longitude={null} />
+          </div>
+
+          <div className="request-form-card">
+            <PinIcon className="request-form-card__icon" />
+
+            <h1 className="request-form-card__title">
+              Emergency Location
             </h1>
 
+            <p className="request-form-card__subtitle">
+              {t.request.subtitle}
+            </p>
+
             <RequestForm
-              onRequestCreated={
-                handleRequestCreated
-              }
+              onRequestCreated={handleRequestCreated}
             />
-          </section>
-        ) : (
-          <>
-            <section className="operator-request-created">
-              <h1>
-                {t.request.number} #{requestId}
-              </h1>
-
-              {phone && (
-                <p>{phone}</p>
-              )}
-            </section>
-
-            <section className="operator-page__content">
-              <div className="operator-page__map">
-                <MapPanel
-                  latitude={null}
-                  longitude={null}
-                />
-              </div>
-
-              <div className="operator-page__photos">
-                <PhotoPanel />
-              </div>
-            </section>
-          </>
-        )}
+          </div>
+        </section>
       </main>
 
       <Footer />
