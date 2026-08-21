@@ -14,9 +14,10 @@ jobs:
 
       - name: Setup environment
         run: |
+          pwd
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv sync --locked --no-dev --no-install-project
-
+        working-directory: ./backend
       - name: Run tests
         run: |
           pwd
