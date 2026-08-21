@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { photoApi } from '../../services/api/photo';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 import { CameraPlusIcon, FileWarningIcon } from '../ui/icons';
 
 interface PhotoUploaderProps {
