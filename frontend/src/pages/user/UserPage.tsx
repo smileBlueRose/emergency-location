@@ -9,7 +9,7 @@ import {
   type LocationStatus,
 } from '../../components/location/LocationSharing';
 import { PhotoUploader } from '../../components/photos/PhotoUploader';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 import { locationApi } from '../../services/api/location';
 import { BroadcastIcon } from '../../components/ui/icons';
 

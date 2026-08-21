@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Header } from '../../components/layout/Header';
 import { Footer } from '../../components/layout/Footer';
 import { MapPanel } from '../../components/map/MapPanel';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 import { locationApi } from '../../services/api/location';
 import { photoApi } from '../../services/api/photo';
 import { connectLocationSocket } from '../../services/websocket/locationSocket';
@@ -36,12 +36,15 @@ export function OperatorRequestPage() {
   const [photos, setPhotos] =
     useState<Photo[]>([]);
 
+  // Nothing is fetched for a malformed id, so the page starts out
+  // already loaded instead of flipping the flag from an effect.
   const [loading, setLoading] =
-    useState(true);
+    useState(() =>
+      Number.isInteger(numericRequestId),
+    );
 
   useEffect(() => {
     if (!Number.isInteger(numericRequestId)) {
-      setLoading(false);
       return;
     }
 

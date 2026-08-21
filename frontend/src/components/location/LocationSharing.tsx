@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { locationApi } from '../../services/api/location';
 import { getCurrentPosition } from '../../services/geolocation';
 import { create2GisGeoUrl } from '../../services/maps';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 
 interface LocationSharingProps {
   requestId: number;
@@ -44,8 +44,13 @@ export function LocationSharing({
   const [mapUrl, setMapUrl] =
     useState<string | null>(null);
 
+  // Kept in a ref so a re-render of the parent never re-arms the
+  // refresh timer below and resets the 20 second cadence.
   const onLocationReceivedRef = useRef(onLocationReceived);
-  onLocationReceivedRef.current = onLocationReceived;
+
+  useEffect(() => {
+    onLocationReceivedRef.current = onLocationReceived;
+  }, [onLocationReceived]);
 
   function updateStatus(nextStatus: LocationStatus) {
     setStatus(nextStatus);

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   useLocale,
   type Locale,
-} from '../../app/providers/LocaleProvider';
+} from '../../app/providers/LocaleContext';
 import {
   ChevronDownIcon,
   TranslateIcon,

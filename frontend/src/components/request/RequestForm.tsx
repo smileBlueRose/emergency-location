@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { locationApi } from '../../services/api/location';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 import { AlertCircleIcon, ClockIcon } from '../ui/icons';
 
 interface RequestFormProps {

@@ -5,7 +5,7 @@ import { Footer } from '../../components/layout/Footer';
 import { MapPanel } from '../../components/map/MapPanel';
 import { RequestForm } from '../../components/request/RequestForm';
 import { PinIcon } from '../../components/ui/icons';
-import { useLocale } from '../../app/providers/LocaleProvider';
+import { useLocale } from '../../app/providers/LocaleContext';
 
 export function OperatorPage() {
   const { t } = useLocale();
