@@ -69,10 +69,8 @@ class CreateLocationShareRequestUseCase:
     async def _send_notifications(self, request: LocationShareRequest) -> None:
         share_url = get_share_request_url(request.id)
 
-        #sms = await self._sms_service.send_location_share_request(
-            phone=request.phone, url=share_url
-        )
-        #logger.info("Request sms sent: sms_id={}", sms.message_id)
+        # sms = await self._sms_service.send_location_share_request(phone=request.phone, url=share_url)
+        # logger.info("Request sms sent: sms_id={}", sms.message_id)
 
         wa_msg = await self._wa_service.send_location_share_request(
             phone=request.phone, link=share_url
