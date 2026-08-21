@@ -7,7 +7,6 @@ from phonenumbers import (
     PhoneNumberFormat,
 )
 from core.exceptions import InvalidPhoneFormatError
-from core.config import settings
 import re
 from loguru import logger
 
@@ -26,7 +25,6 @@ class PhoneService:
                 "Phone number must be in international format, e.g. +77071234567"
             )
 
-        region = region or settings.phone.default_region
         try:
             return parse(phone, region)
         except NumberParseException as e:
@@ -35,10 +33,9 @@ class PhoneService:
     @classmethod
     def is_valid(cls, phone: str, region: str | None = None) -> bool:
         try:
-            parsed = cls.parse(phone, region)
+            return is_valid_number(cls.parse(phone, region))
         except InvalidPhoneFormatError:
             return False
-        return is_valid_number(parsed)
 
     @classmethod
     def normalize(cls, phone: str, region: str | None = None) -> str:
