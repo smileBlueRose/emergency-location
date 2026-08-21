@@ -18,7 +18,9 @@ jobs:
           uv sync --locked --no-dev --no-install-project
 
       - name: Run tests
-        run: uv run pytest test/
+        run: |
+          pwd
+          uv run pytest test/
         working-directory: ./backend
 
   deploy:
