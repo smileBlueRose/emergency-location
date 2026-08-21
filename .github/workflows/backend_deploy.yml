@@ -11,7 +11,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        working-directory: ./backend
 
       - name: Setup environment
         run: |
@@ -20,6 +19,7 @@ jobs:
 
       - name: Run tests
         run: uv run pytest test/
+        working-directory: ./backend
 
   deploy:
     runs-on: ubuntu-latest
