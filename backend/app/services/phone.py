@@ -7,7 +7,6 @@ from phonenumbers import (
     PhoneNumberFormat,
 )
 from core.exceptions import InvalidPhoneFormatError
-from core.config import settings
 import re
 from loguru import logger
 
