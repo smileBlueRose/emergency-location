@@ -1,4 +1,4 @@
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, UnidentifiedImageError, ImageOps
 from io import BytesIO
 
 from loguru import logger
@@ -19,6 +19,7 @@ class ImageService:
             logger.error("Failed to load image: {}", e)
             raise InvalidImageError("Invalid image data") from e
 
+        img = ImageOps.exif_transpose(img)
         converted = img.convert("RGB")
         output = BytesIO()
         converted.save(output, format="JPEG", quality=quality, optimize=True)
