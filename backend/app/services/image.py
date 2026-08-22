@@ -4,7 +4,7 @@ from io import BytesIO
 from loguru import logger
 
 from core.exceptions import InvalidImageError
-from pillow_heif import register_heif_opener
+from pillow_heif import register_heif_opener  # type: ignore
 
 
 register_heif_opener()
