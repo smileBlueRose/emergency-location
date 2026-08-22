@@ -1,5 +1,6 @@
-from fastapi import WebSocket
+import asyncio
 from typing import Any
+from fastapi import WebSocket
 from core.interfaces import WebSocketGateway
 
 
@@ -10,36 +11,35 @@ class RequestWebSocketGateway(WebSocketGateway[int, Any]):
         self.connections: dict[int, list[WebSocket]] = {}
 
     async def connect(self, key: int, websocket: WebSocket) -> None:
-        """
-        :param key: request_id integer
-        :param websocket: fastapi.WebSocket
-        """
         await websocket.accept()
         self.connections.setdefault(key, []).append(websocket)
 
     def disconnect(self, key: int, websocket: WebSocket) -> None:
-        """
-        :param key: request_id integer
-        :param websocket: fastapi.WebSocket
-        """
         connections = self.connections.get(key)
         if connections is None:
             return
-        connections.remove(websocket)
+        if websocket in connections:
+            connections.remove(websocket)
         if not connections:
             del self.connections[key]
 
-    async def broadcast(self, key: int, data: dict[str, str]) -> None:
-        raise NotImplementedError()
+    async def broadcast(self, key: int, data: dict[str, Any]) -> None:
+        targets = list(self.connections.get(key, []))
+        if not targets:
+            return
+
+        async def _safe_send(ws: WebSocket):
+            try:
+                await ws.send_json(data)
+            except Exception:
+                self.disconnect(key, ws)
+
+        await asyncio.gather(*[_safe_send(ws) for ws in targets])
 
 
 class LocationWebSocketGateway(RequestWebSocketGateway):
-    async def broadcast(self, key: int, data: dict[str, Any]) -> None:
-        for websocket in self.connections.get(key, []):
-            await websocket.send_json(data)
+    pass
 
 
 class PhotoWebSocketGateway(RequestWebSocketGateway):
-    async def broadcast(self, key: int, data: dict[str, Any]) -> None:
-        for websocket in self.connections.get(key, []):
-            await websocket.send_json(data)
+    pass
