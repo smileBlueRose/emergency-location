@@ -16,7 +16,10 @@ export const translations = {
 
     photo: {
       select: 'Выбрать фотографию',
-      attach: 'Прикрепить фото',
+      attach: 'Выбрать из галереи',
+      takePhoto: 'Сделать фото',
+      cameraBlocked:
+        'Нет доступа к камере. Разрешите его в настройках браузера или выберите фото из галереи.',
       send: 'Отправить фото',
       sending: 'Отправляем...',
       success: 'Фотография успешно отправлена.',
@@ -39,7 +42,7 @@ export const translations = {
       number: 'Заявка',
       subtitle: 'Запросите геолокацию пострадавшего по номеру телефона',
       invalidPhone:
-        'Неправильный формат телефона. Номер должен начинаться с (+) кода страны',
+        'Неправильный формат телефона. Введите номер с кодом страны (+7…) или начните с 8',
       nextRequestPrefix: 'До следующего запроса:',
     },
 
@@ -51,6 +54,9 @@ export const translations = {
       copyLink: 'Копировать ссылку',
       photos: 'Фотоориентир пострадавшего',
       photosWaiting: 'В ожидании загрузки фото ...',
+      openPhoto: 'Открыть фото в полном размере',
+      photoFull: 'Фотография в полном размере',
+      closePhoto: 'Закрыть фото',
     },
   },
 
@@ -71,7 +77,10 @@ export const translations = {
 
     photo: {
       select: 'Фотосуретті таңдау',
-      attach: 'Фото тіркеу',
+      attach: 'Галереядан таңдау',
+      takePhoto: 'Фото түсіру',
+      cameraBlocked:
+        'Камераға қолжетімділік жоқ. Оны браузер параметрлерінде рұқсат етіңіз немесе галереядан фото таңдаңыз.',
       send: 'Фотосуретті жіберу',
       sending: 'Жіберілуде...',
       success: 'Фотосурет сәтті жіберілді.',
@@ -94,7 +103,7 @@ export const translations = {
       number: 'Өтінім',
       subtitle: 'Зардап шегушінің геолокациясын телефон нөмірі арқылы сұраңыз',
       invalidPhone:
-        'Телефон нөмірінің форматы дұрыс емес. Нөмір елдің (+) кодынан басталуы керек',
+        'Телефон нөмірінің форматы дұрыс емес. Нөмірді ел кодымен (+7…) немесе 8-ден бастап енгізіңіз',
       nextRequestPrefix: 'Келесі сұранысқа дейін:',
     },
 
@@ -106,6 +115,9 @@ export const translations = {
       copyLink: 'Сілтемені көшіру',
       photos: 'Зардап шегушінің фото бағдары',
       photosWaiting: 'Фотосуреттерді жүктеу күтілуде ...',
+      openPhoto: 'Фотосуретті толық өлшемде ашу',
+      photoFull: 'Толық өлшемдегі фотосурет',
+      closePhoto: 'Фотосуретті жабу',
     },
   },
 
@@ -126,7 +138,10 @@ export const translations = {
 
     photo: {
       select: 'Choose a photo',
-      attach: 'Attach photo',
+      attach: 'Choose from gallery',
+      takePhoto: 'Take a photo',
+      cameraBlocked:
+        'No access to the camera. Allow it in your browser settings or pick a photo from the gallery.',
       send: 'Send photo',
       sending: 'Uploading...',
       success: 'Photo uploaded successfully.',
@@ -149,7 +164,7 @@ export const translations = {
       number: 'Request',
       subtitle: "Request the victim's geolocation by phone number",
       invalidPhone:
-        'Invalid phone format. The number must start with the (+) country code',
+        'Invalid phone format. Enter the number with a country code (+7…) or starting with 8',
       nextRequestPrefix: 'Next request available in:',
     },
 
@@ -161,6 +176,9 @@ export const translations = {
       copyLink: 'Copy link',
       photos: "Victim's photo reference",
       photosWaiting: 'Waiting for photo upload ...',
+      openPhoto: 'Open the photo at full size',
+      photoFull: 'Photo at full size',
+      closePhoto: 'Close photo',
     },
   },
 } as const;
