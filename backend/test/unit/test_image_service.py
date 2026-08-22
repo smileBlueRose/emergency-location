@@ -4,7 +4,6 @@ from services.image import ImageService
 from conftest import TEST_DIR
 import io
 from PIL import Image
-from pathlib import Path
 
 
 def is_correct_jpg(data: bytes) -> bool:
@@ -35,9 +34,5 @@ def get_bytes(filename: str) -> bytes:
     ["images/image.jpg", "images/image.png", "images/image.webp", "images/image.heic"],
 )
 def test_convert_to_jpg(filename: str) -> None:
-    print()
     data = get_bytes(TEST_DIR / filename)
-    with open(TEST_DIR / "images/test_output" / Path(filename).name, mode="wb") as f:
-        f.write(data)
-
     assert is_correct_jpg(ImageService.convert_to_jpeg(data))
