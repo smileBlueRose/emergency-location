@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { photoApi } from '../../services/api/photo';
+import { isCameraPermissionDenied } from '../../services/camera';
 import { useLocale } from '../../app/providers/LocaleContext';
 import { CameraPlusIcon, FileWarningIcon } from '../ui/icons';
 
@@ -29,6 +30,29 @@ export function PhotoUploader({
   const [formatError, setFormatError] = useState(false);
   const [countError, setCountError] = useState(false);
   const [sending, setSending] = useState(false);
+  const [cameraBlocked, setCameraBlocked] = useState(false);
+
+  // Two separate inputs: the camera one carries `capture`, which is what
+  // makes a phone open the camera (and ask for access to it) instead of
+  // the gallery. Desktop browsers ignore `capture` and show a file dialog.
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleTakePhoto() {
+    setCameraBlocked(false);
+
+    if (await isCameraPermissionDenied()) {
+      setCameraBlocked(true);
+      return;
+    }
+
+    cameraInputRef.current?.click();
+  }
+
+  function handlePickFromGallery() {
+    setCameraBlocked(false);
+    galleryInputRef.current?.click();
+  }
 
   function handleFilesSelected(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -148,21 +172,37 @@ export function PhotoUploader({
   return (
     <section className="photo-uploader">
       <input
-        id="photo-upload"
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFilesSelected}
+        className="photo-uploader__input"
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+
+      <input
+        ref={galleryInputRef}
         type="file"
         accept="image/*"
         multiple
         onChange={handleFilesSelected}
         className="photo-uploader__input"
+        tabIndex={-1}
+        aria-hidden="true"
       />
 
       <div className="photo-uploader__grid">
-        <label
-          htmlFor="photo-upload"
+        <button
+          type="button"
           className="photo-uploader__tile photo-uploader__tile--add"
+          onClick={handleTakePhoto}
+          aria-label={t.photo.takePhoto}
+          title={t.photo.takePhoto}
         >
           <CameraPlusIcon className="photo-uploader__add-icon" />
-        </label>
+        </button>
 
         {photos.map((photo, index) => (
           <div
@@ -220,12 +260,28 @@ export function PhotoUploader({
         </div>
       )}
 
-      <label
-        htmlFor="photo-upload"
+      {cameraBlocked && (
+        <div className="photo-uploader__notice">
+          <FileWarningIcon className="photo-uploader__notice-icon" />
+          <p>{t.photo.cameraBlocked}</p>
+        </div>
+      )}
+
+      <button
+        type="button"
         className="photo-uploader__button"
+        onClick={handleTakePhoto}
+      >
+        {t.photo.takePhoto}
+      </button>
+
+      <button
+        type="button"
+        className="photo-uploader__button"
+        onClick={handlePickFromGallery}
       >
         {t.photo.attach}
-      </label>
+      </button>
 
       <button
         type="button"

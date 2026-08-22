@@ -10,6 +10,7 @@ import { photoApi } from '../../services/api/photo';
 import { connectLocationSocket } from '../../services/websocket/locationSocket';
 import { connectPhotoSocket } from '../../services/websocket/photoSocket';
 import { resolveMediaUrl } from '../../services/media';
+import { PhotoLightbox } from '../../components/photos/PhotoLightbox';
 import {
   ExternalLinkIcon,
   TelegramIcon,
@@ -35,6 +36,9 @@ export function OperatorRequestPage() {
 
   const [photos, setPhotos] =
     useState<Photo[]>([]);
+
+  const [openedPhotoUrl, setOpenedPhotoUrl] =
+    useState<string | null>(null);
 
   // Nothing is fetched for a malformed id, so the page starts out
   // already loaded instead of flipping the flag from an effect.
@@ -232,26 +236,48 @@ export function OperatorRequestPage() {
           ) : (
             <div className="operator-request__photos">
               {photos.map((photo) => (
-                <img
+                <button
                   key={photo.id}
-                  src={photo.url}
-                  alt={t.operator.photos}
-                  className="operator-request__photo"
-                  onError={(event) => {
-                    console.error(
-                      'Failed to load photo:',
-                      photo.url,
-                    );
+                  type="button"
+                  className="operator-request__photo-button"
+                  aria-label={t.operator.openPhoto}
+                  onClick={() =>
+                    setOpenedPhotoUrl(photo.url)
+                  }
+                >
+                  <img
+                    src={photo.url}
+                    alt={t.operator.photos}
+                    className="operator-request__photo"
+                    onError={(event) => {
+                      console.error(
+                        'Failed to load photo:',
+                        photo.url,
+                      );
 
-                    event.currentTarget.style.display =
-                      'none';
-                  }}
-                />
+                      const tile =
+                        event.currentTarget.closest(
+                          'button',
+                        );
+
+                      (
+                        tile ?? event.currentTarget
+                      ).style.display = 'none';
+                    }}
+                  />
+                </button>
               ))}
             </div>
           )}
         </aside>
       </main>
+
+      {openedPhotoUrl && (
+        <PhotoLightbox
+          url={openedPhotoUrl}
+          onClose={() => setOpenedPhotoUrl(null)}
+        />
+      )}
 
       <Footer />
     </div>

@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { locationApi } from '../../services/api/location';
+import {
+  isValidPhone,
+  normalizePhone,
+} from '../../services/phone';
 import { useLocale } from '../../app/providers/LocaleContext';
 import { AlertCircleIcon, ClockIcon } from '../ui/icons';
 
@@ -10,7 +14,6 @@ interface RequestFormProps {
 }
 
 const DEFAULT_COOLDOWN_SECONDS = 137;
-const PHONE_PATTERN = /^\+[1-9]\d{6,14}$/;
 
 function formatCountdown(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -67,7 +70,7 @@ export function RequestForm({
       return;
     }
 
-    if (!PHONE_PATTERN.test(trimmedPhone.replace(/[\s()-]/g, ''))) {
+    if (!isValidPhone(trimmedPhone)) {
       setInvalidPhone(true);
       setError(false);
       return;
@@ -80,7 +83,7 @@ export function RequestForm({
 
       const request =
         await locationApi.createShareRequest(
-          trimmedPhone,
+          normalizePhone(trimmedPhone),
         );
 
       onRequestCreated(
