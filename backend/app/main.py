@@ -32,7 +32,12 @@ configure_logger(main_app)
 
 main_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # TODO: Refactor it later
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://emergency-location.com",
+        "https://www.emergency-location.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
